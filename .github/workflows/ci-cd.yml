@@ -1,0 +1,323 @@
+# ============================================================
+#  SkillSync CI/CD Pipeline
+#  - Build shared library (skillsync-cache-common)
+#  - Build & test all microservices in parallel (matrix)
+#  - Code quality analysis (SonarCloud) — conditional
+#  - Docker build + push to Docker Hub (latest + SHA tags)
+#  - Deploy to AWS EC2 via SSH
+# ============================================================
+name: SkillSync CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Backend/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Backend/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '17'
+  DOCKER_REGISTRY: docker.io
+  DOCKER_REPO: anshul94122/skillsync
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+
+  # ======================== STAGE 1: BUILD SHARED LIBRARY =====
+  build-cache-common:
+    name: Build Cache Common Library
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: Build & Install skillsync-cache-common
+        working-directory: ./Backend/skillsync-cache-common
+        run: mvn clean install -DskipTests -B
+
+      - name: Upload cache-common artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cache-common-jar
+          path: ~/.m2/repository/com/skillsync/skillsync-cache-common/
+          retention-days: 1
+
+  # ======================== STAGE 2: BUILD & TEST ALL SERVICES =
+  build-and-test:
+    name: Build & Test - ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: build-cache-common
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - eureka-server
+          - config-server
+          - api-gateway
+          - auth-service
+          - user-service
+          - skill-service
+          - session-service
+          - notification-service
+          - payment-service
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: Download cache-common
+        uses: actions/download-artifact@v4
+        with:
+          name: cache-common-jar
+          path: ~/.m2/repository/com/skillsync/skillsync-cache-common/
+
+      - name: Build ${{ matrix.service }}
+        working-directory: ./Backend/${{ matrix.service }}
+        run: mvn clean package -DskipTests -B
+
+      - name: Run Unit Tests - ${{ matrix.service }}
+        working-directory: ./Backend/${{ matrix.service }}
+        run: mvn test -B
+        continue-on-error: ${{ contains(fromJSON('["eureka-server", "config-server"]'), matrix.service) }}
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.service }}
+          path: ./Backend/${{ matrix.service }}/target/surefire-reports/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload JaCoCo Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-${{ matrix.service }}
+          path: ./Backend/${{ matrix.service }}/target/site/jacoco/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.service }}-jar
+          path: ./Backend/${{ matrix.service }}/target/*.jar
+          retention-days: 1
+
+  # ======================== STAGE 3: DOCKER BUILD & PUSH =======
+  docker:
+    name: Docker Build & Push
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push All Service Images
+        run: |
+          # Define service-name → Docker tag mapping
+          declare -A SERVICE_MAP=(
+            [eureka-server]=eureka
+            [config-server]=config
+            [api-gateway]=gateway
+            [auth-service]=auth
+            [user-service]=user
+            [skill-service]=skill
+            [session-service]=session
+            [payment-service]=payment
+            [notification-service]=notification
+          )
+
+          COMMIT_SHA="${{ github.sha }}"
+          REPO="${{ env.DOCKER_REPO }}"
+
+          for svc in eureka-server config-server api-gateway auth-service user-service skill-service session-service payment-service notification-service; do
+            TAG="${SERVICE_MAP[$svc]}"
+            echo "============================================"
+            echo "Building: $svc → $REPO:$TAG"
+            echo "============================================"
+
+            # Determine build context: services with cache-common dependency
+            # need the full ./Backend context; standalone services use their own dir
+            case "$svc" in
+              eureka-server|config-server|api-gateway)
+                CONTEXT="./Backend/$svc"
+                DOCKERFILE="./Backend/$svc/Dockerfile"
+                ;;
+              *)
+                CONTEXT="./Backend"
+                DOCKERFILE="./Backend/$svc/Dockerfile"
+                ;;
+            esac
+
+            docker buildx build \
+              --platform linux/amd64 \
+              --file "$DOCKERFILE" \
+              --tag "$REPO:$TAG" \
+              --tag "$REPO:$TAG-$COMMIT_SHA" \
+              --push \
+              "$CONTEXT"
+
+            echo "✅ Pushed: $REPO:$TAG and $REPO:$TAG-$COMMIT_SHA"
+          done
+
+  # ======================== STAGE 4: COMPOSE VALIDATION ========
+  validate-compose:
+    name: Validate Docker Compose
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate compose file
+        run: |
+          cd Backend
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          fi
+          docker compose config --quiet
+
+  # ======================== STAGE 5: CODE QUALITY (SonarCloud) =
+  code-quality:
+    name: Code Quality (SonarCloud)
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'pull_request' }}
+
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Download cache-common
+        uses: actions/download-artifact@v4
+        with:
+          name: cache-common-jar
+          path: ~/.m2/repository/com/skillsync/skillsync-cache-common/
+
+      - name: Build & Test all services (for JaCoCo reports)
+        if: ${{ env.SONAR_TOKEN != '' }}
+        run: |
+          SERVICES="auth-service user-service skill-service session-service notification-service payment-service api-gateway"
+          for svc in $SERVICES; do
+            echo "======= Building & Testing: $svc ======="
+            cd Backend/$svc
+            mvn -B verify || true
+            cd ../..
+          done
+
+      - name: SonarCloud Scan
+        if: ${{ env.SONAR_TOKEN != '' }}
+        uses: SonarSource/sonarcloud-github-action@master
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=anshul89237_SkillSync
+            -Dsonar.organization=anshul89237
+            -Dsonar.sources=Backend/auth-service/src/main,Backend/user-service/src/main,Backend/skill-service/src/main,Backend/session-service/src/main,Backend/notification-service/src/main,Backend/payment-service/src/main,Backend/api-gateway/src/main,Frontend/src
+            -Dsonar.tests=Backend/auth-service/src/test,Backend/user-service/src/test,Backend/skill-service/src/test,Backend/session-service/src/test,Backend/notification-service/src/test,Backend/payment-service/src/test,Backend/api-gateway/src/test
+            -Dsonar.java.binaries=Backend/auth-service/target/classes,Backend/user-service/target/classes,Backend/skill-service/target/classes,Backend/session-service/target/classes,Backend/notification-service/target/classes,Backend/payment-service/target/classes,Backend/api-gateway/target/classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=Backend/auth-service/target/site/jacoco/jacoco.xml,Backend/user-service/target/site/jacoco/jacoco.xml,Backend/skill-service/target/site/jacoco/jacoco.xml,Backend/session-service/target/site/jacoco/jacoco.xml,Backend/notification-service/target/site/jacoco/jacoco.xml,Backend/payment-service/target/site/jacoco/jacoco.xml,Backend/api-gateway/target/site/jacoco/jacoco.xml
+
+      - name: Skip SonarCloud (token not configured)
+        if: ${{ env.SONAR_TOKEN == '' }}
+        run: echo "⚠️ SONAR_TOKEN not set — skipping SonarCloud analysis"
+
+  # ======================== STAGE 6: DEPLOY TO EC2 =============
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: [docker, validate-compose]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy deployment files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "Backend/docker-compose.yml,Backend/nginx/nginx.conf,Backend/.env.example,Backend/init-databases.sql,Backend/monitoring/**"
+          target: "~/SkillSync"
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/SkillSync/Backend
+
+            # Pull latest code from GitHub
+            git pull origin main
+
+            # Create .env from example if it doesn't exist
+            if [ ! -f .env ]; then
+              cp .env.example .env
+              echo "⚠️ Created .env from .env.example — verify secrets!"
+            fi
+
+            # Pull latest Docker images from Hub
+            docker compose pull
+
+            # Start/Restart services with new images
+            docker compose up -d --remove-orphans
+
+            # Cleanup unused dangling images to save disk space
+            docker image prune -f
+
+            echo "✅ Deployment complete!"

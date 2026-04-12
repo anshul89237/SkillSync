@@ -1,0 +1,87 @@
+# Prometheus Configuration for SkillSync
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+
+  # ======================== API Gateway ========================
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['skillsync-gateway:8080']
+    relabel_configs:
+      - target_label: service
+        replacement: 'api-gateway'
+
+  # ======================== Auth Service ======================
+  - job_name: 'auth-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['skillsync-auth:8081']
+    relabel_configs:
+      - target_label: service
+        replacement: 'auth-service'
+
+  # ======================== User Service ======================
+  - job_name: 'user-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['skillsync-user:8082']
+    relabel_configs:
+      - target_label: service
+        replacement: 'user-service'
+
+  # ======================== Skill Service =====================
+  - job_name: 'skill-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['skillsync-skill:8084']
+    relabel_configs:
+      - target_label: service
+        replacement: 'skill-service'
+
+  # ======================== Session Service ===================
+  - job_name: 'session-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['skillsync-session:8085']
+    relabel_configs:
+      - target_label: service
+        replacement: 'session-service'
+
+  # ======================== Notification Service ==============
+  - job_name: 'notification-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['skillsync-notification:8088']
+    relabel_configs:
+      - target_label: service
+        replacement: 'notification-service'
+
+  # ======================== Payment Service ===================
+  - job_name: 'payment-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['skillsync-payment:8086']
+    relabel_configs:
+      - target_label: service
+        replacement: 'payment-service'
+
+  # ======================== Eureka Server ======================
+  - job_name: 'eureka-server'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['skillsync-eureka:8761']
+    relabel_configs:
+      - target_label: service
+        replacement: 'eureka-server'
+
+  # ======================== Config Server ======================
+  - job_name: 'config-server'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['skillsync-config:8888']
+    relabel_configs:
+      - target_label: service
+        replacement: 'config-server'

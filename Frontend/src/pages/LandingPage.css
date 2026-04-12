@@ -1,0 +1,1053 @@
+/* ═══════════════════════════════════════════════
+   LandingPage.css — Full-width, hero-card style
+   ═══════════════════════════════════════════════ */
+
+.ppt-page {
+  --ppt-bg: #f7fbff;
+  --ppt-surface: rgba(255, 255, 255, 0.76);
+  --ppt-surface-strong: rgba(255, 255, 255, 0.88);
+  --ppt-border: rgba(91, 129, 173, 0.28);
+  --ppt-text: #0f2038;
+  --ppt-muted: #4b6283;
+  --ppt-accent-a: #106bff;
+  --ppt-accent-b: #08b8c9;
+  --ppt-accent-c: #ff7a3d;
+  --ppt-shadow: 0 22px 48px rgba(20, 53, 97, 0.14);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(16, 107, 255, 0.18), transparent 40%),
+    radial-gradient(circle at 100% 15%, rgba(8, 184, 201, 0.16), transparent 36%),
+    radial-gradient(circle at 40% 100%, rgba(255, 122, 61, 0.14), transparent 42%),
+    linear-gradient(180deg, #f8fbff 0%, #eef5ff 52%, #eaf3ff 100%);
+  color: var(--ppt-text);
+  padding-bottom: 3.25rem;
+}
+
+.ppt-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(113, 151, 198, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(113, 151, 198, 0.08) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+  pointer-events: none;
+}
+
+.ppt-aura {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(60px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.aura-one {
+  width: clamp(16rem, 30vw, 28rem);
+  height: clamp(16rem, 30vw, 28rem);
+  top: -12%;
+  right: -8%;
+  background: linear-gradient(130deg, rgba(16, 107, 255, 0.72), rgba(8, 184, 201, 0.6));
+}
+
+.aura-two {
+  width: clamp(14rem, 24vw, 22rem);
+  height: clamp(14rem, 24vw, 22rem);
+  left: -7%;
+  top: 35%;
+  background: linear-gradient(130deg, rgba(255, 122, 61, 0.66), rgba(16, 107, 255, 0.48));
+}
+
+.aura-three {
+  width: clamp(12rem, 18vw, 18rem);
+  height: clamp(12rem, 18vw, 18rem);
+  right: 26%;
+  bottom: -10%;
+  background: linear-gradient(130deg, rgba(8, 184, 201, 0.62), rgba(111, 83, 255, 0.52));
+}
+
+/* ── Navbar (sticky) ── */
+.ppt-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 14px clamp(1rem, 4vw, 3rem);
+  border-bottom: 1px solid var(--ppt-border);
+  backdrop-filter: blur(12px);
+  background: rgba(247, 251, 255, 0.68);
+  box-shadow: 0 12px 30px rgba(11, 37, 72, 0.08);
+}
+
+.ppt-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.ppt-brand span {
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.ppt-brand small {
+  margin-left: 0.4rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(54, 93, 137, 0.3);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--ppt-muted);
+  font-size: 0.67rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+}
+
+.ppt-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.ppt-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.ppt-theme-toggle {
+  border-color: rgba(64, 102, 147, 0.36);
+  box-shadow: none;
+}
+
+/* ── Buttons ── */
+.ppt-btn {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0.68rem 1.12rem;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.22px;
+  text-decoration: none;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.ppt-btn:hover {
+  transform: translateY(-2px);
+}
+
+.ppt-btn.solid {
+  color: #fff;
+  background: linear-gradient(135deg, var(--ppt-accent-a), var(--ppt-accent-b));
+  box-shadow: 0 12px 26px rgba(16, 107, 255, 0.35);
+}
+
+.ppt-btn.ghost {
+  color: var(--ppt-text);
+  background: rgba(255, 255, 255, 0.68);
+  border-color: rgba(80, 117, 162, 0.32);
+}
+
+.landing-btn {
+  text-decoration: none;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  padding: 0.6875rem 1.125rem;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.landing-btn:hover {
+  transform: translateY(-2px);
+}
+
+.landing-btn-solid {
+  color: #fff;
+  background: linear-gradient(125deg, #0056b3, #007bff);
+  box-shadow: 0 0.75rem 1.375rem rgba(11, 112, 223, 0.23);
+}
+
+.landing-btn-solid:hover {
+  box-shadow: 0 1rem 1.5625rem rgba(11, 112, 223, 0.35);
+}
+
+.landing-btn-ghost {
+  color: var(--ppt-text);
+  background: rgba(255, 255, 255, 0.68);
+  border-color: rgba(127, 155, 194, 0.22);
+}
+
+.landing-btn-ghost:hover {
+  background: #fff;
+  border-color: rgba(95, 134, 195, 0.37);
+}
+
+/* ── Main (full width) ── */
+.ppt-main {
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  gap: clamp(1.2rem, 3vw, 2rem);
+  padding: 1.15rem clamp(1rem, 4vw, 3rem) 0;
+}
+
+/* ── Hero card (from PptLandingPage) ── */
+.hero-card,
+.ppt-section,
+.ppt-final-cta {
+  position: relative;
+  border-radius: 26px;
+  border: 1px solid var(--ppt-border);
+  background: var(--ppt-surface);
+  box-shadow: var(--ppt-shadow);
+  overflow: hidden;
+}
+
+.hero-card {
+  padding: clamp(1.25rem, 5vw, 2.75rem);
+  text-align: center;
+  min-height: min(72vh, 32.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  animation: cardRise 620ms ease both;
+}
+
+/* ── Original text hero (full screen) ── */
+.ppt-hero {
+  padding: clamp(2rem, 5vw, 4rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 4rem);
+  text-align: center;
+}
+
+.ppt-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 900px;
+}
+
+.ppt-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  font-size: 0.72rem;
+  color: #1f65cb;
+  font-weight: 900;
+}
+
+.ppt-hero h1 {
+  margin: 0.62rem 0 0;
+  font-size: clamp(2rem, 5.7vw, 4.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.8px;
+  font-weight: 900;
+}
+
+.ppt-hero h1 span {
+  display: block;
+  color: transparent;
+  background: linear-gradient(130deg, var(--ppt-accent-a), var(--ppt-accent-b), var(--ppt-accent-c));
+  background-clip: text;
+}
+
+.ppt-subtext {
+  margin: 0.92rem 0 0;
+  max-width: 62ch;
+  color: var(--ppt-muted);
+  line-height: 1.6;
+  font-size: clamp(0.92rem, 1.15vw, 1.04rem);
+  text-align: center;
+}
+
+.hero-aura {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(1.875rem);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.hero-aura-one {
+  width: clamp(10rem, 18vw, 15rem);
+  height: clamp(10rem, 18vw, 15rem);
+  background: #5ca7ff;
+  top: -2.5rem;
+  left: -3.125rem;
+  animation: auraDrift 11s ease-in-out infinite;
+}
+
+.hero-aura-two {
+  width: clamp(9rem, 16vw, 13.75rem);
+  height: clamp(9rem, 16vw, 13.75rem);
+  background: #7de7d7;
+  right: -2.8125rem;
+  top: 24%;
+  animation: auraDrift 9s ease-in-out infinite reverse;
+}
+
+.hero-aura-three {
+  width: clamp(8rem, 14vw, 11.25rem);
+  height: clamp(8rem, 14vw, 11.25rem);
+  background: #ffc08e;
+  bottom: -2.8125rem;
+  left: 35%;
+  animation: auraDrift 12s ease-in-out infinite;
+}
+
+.brand-stage {
+  position: relative;
+  width: min(17.5rem, 78vw);
+  aspect-ratio: 1 / 1;
+  margin-top: 1.125rem;
+  margin-bottom: 0.875rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle, #ffffff 0%, #ffffff00 72%);
+  overflow: hidden;
+  z-index: 2;
+}
+
+.hero-logo {
+  width: min(10.5rem, 52vw);
+  height: auto;
+  z-index: 4;
+  filter: drop-shadow(0 0.9375rem 1.25rem #0f4f8d26);
+  animation: logoFloat 5s ease-in-out infinite;
+}
+
+.gravity-orb {
+  position: absolute;
+  border-radius: 999px;
+  border: 2px solid #5ea8ff50;
+}
+
+.orb-a {
+  width: 88%;
+  height: 88%;
+  animation: orbit 12s linear infinite;
+}
+
+.orb-b {
+  width: 66%;
+  height: 66%;
+  border-color: #00a7b760;
+  animation: orbit 9s linear infinite reverse;
+}
+
+.orb-c {
+  width: 42%;
+  height: 42%;
+  border-color: #ff9b6a66;
+  animation: orbit 7s linear infinite;
+}
+
+.hero-brand-title {
+  margin: 0;
+  margin-top: 0.375rem;
+  font-size: clamp(2rem, 4.8vw, 4rem);
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  z-index: 2;
+}
+
+.hero-tagline {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  color: #225f9c;
+  font-size: clamp(1.05rem, 2.2vw, 1.78rem);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.2px;
+  z-index: 2;
+}
+
+.hero-cta-row {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* ── Metrics row (below hero CTA) ── */
+.ppt-metrics {
+  margin-top: 1.2rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  z-index: 2;
+  width: 100%;
+  max-width: 680px;
+}
+
+.ppt-metric-card {
+  border-radius: 16px;
+  border: 1px solid rgba(84, 122, 167, 0.3);
+  background: rgba(255, 255, 255, 0.66);
+  padding: 0.8rem 0.88rem;
+}
+
+.ppt-metric-card p {
+  margin: 0;
+  color: var(--ppt-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1.1px;
+  font-weight: 700;
+}
+
+.ppt-metric-card h3 {
+  margin: 0.3rem 0 0;
+  font-size: clamp(1.2rem, 2.2vw, 1.9rem);
+  line-height: 1.1;
+}
+
+.ppt-metric-card small {
+  color: var(--ppt-muted);
+  font-size: 0.75rem;
+}
+
+/* ── Sections ── */
+.ppt-section,
+.ppt-final-cta {
+  padding: clamp(1.1rem, 3.2vw, 2rem);
+}
+
+.ppt-section-head p {
+  margin: 0;
+  color: #1f65cb;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 1.25px;
+  font-weight: 900;
+}
+
+.ppt-section-head h2 {
+  margin: 0.4rem 0 0;
+  font-size: clamp(1.35rem, 2.8vw, 2rem);
+  line-height: 1.15;
+}
+
+.ppt-lane-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.78rem;
+}
+
+.ppt-lane-card {
+  --lane-accent: var(--ppt-accent-a);
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid rgba(93, 131, 177, 0.35);
+  background: var(--ppt-surface-strong);
+  padding: 1rem;
+  overflow: hidden;
+  transition: transform 260ms cubic-bezier(0.22, 0.74, 0.18, 1), box-shadow 260ms ease, border-color 260ms ease;
+}
+
+.ppt-lane-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--lane-accent), transparent);
+  opacity: 0.8;
+}
+
+.ppt-lane-card:hover {
+  transform: translateY(-9px);
+  border-color: color-mix(in oklab, var(--lane-accent) 50%, rgba(93, 131, 177, 0.35));
+  box-shadow: 0 24px 34px rgba(17, 45, 83, 0.2);
+}
+
+.lane-cyan {
+  --lane-accent: #08b8c9;
+}
+
+.lane-orange {
+  --lane-accent: #ff7a3d;
+}
+
+.lane-blue {
+  --lane-accent: #106bff;
+}
+
+.lane-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.lane-role,
+.lane-metric {
+  border-radius: 999px;
+  border: 1px solid rgba(83, 121, 166, 0.34);
+  background: rgba(255, 255, 255, 0.74);
+  padding: 0.25rem 0.52rem;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.78px;
+  text-transform: uppercase;
+  color: var(--ppt-muted);
+}
+
+.lane-metric {
+  border-color: color-mix(in oklab, var(--lane-accent) 45%, rgba(83, 121, 166, 0.34));
+}
+
+.ppt-lane-card h3 {
+  margin: 0.8rem 0 0;
+  font-size: 1.03rem;
+}
+
+.ppt-lane-card p {
+  margin: 0.5rem 0 0;
+  color: var(--ppt-muted);
+  font-size: 0.88rem;
+  line-height: 1.54;
+}
+
+.ppt-lane-card ul {
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.ppt-lane-card li {
+  position: relative;
+  padding-left: 1rem;
+  color: var(--ppt-muted);
+  font-size: 0.82rem;
+  line-height: 1.43;
+}
+
+.ppt-lane-card li::before {
+  content: '';
+  position: absolute;
+  top: 0.45rem;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--lane-accent);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--lane-accent) 28%, transparent);
+}
+
+.lane-pulse {
+  margin-top: 0.8rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--lane-accent) 44%, rgba(83, 121, 166, 0.3));
+  background: color-mix(in oklab, var(--lane-accent) 10%, rgba(255, 255, 255, 0.72));
+  padding: 0.42rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.25px;
+}
+
+/* ── Signals ── */
+.ppt-signal-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.78rem;
+}
+
+.ppt-signal-card {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid rgba(90, 127, 172, 0.35);
+  background: var(--ppt-surface-strong);
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.ppt-signal-card::after {
+  content: '';
+  position: absolute;
+  left: -20%;
+  top: -120%;
+  width: 28%;
+  height: 300%;
+  transform: rotate(18deg);
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+  animation: signalSweep 6.5s linear infinite;
+  pointer-events: none;
+}
+
+.ppt-signal-card p {
+  margin: 0;
+  color: var(--ppt-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 800;
+}
+
+.ppt-signal-card h3 {
+  margin: 0.6rem 0 0;
+  font-size: 1.12rem;
+}
+
+.ppt-signal-card small {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--ppt-muted);
+  line-height: 1.45;
+  font-size: 0.84rem;
+}
+
+/* ── Final CTA ── */
+.ppt-final-cta {
+  text-align: center;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(16, 107, 255, 0.2), transparent 45%),
+    radial-gradient(circle at 86% 22%, rgba(8, 184, 201, 0.19), transparent 44%),
+    var(--ppt-surface);
+}
+
+.final-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1.3px;
+  font-size: 0.72rem;
+  color: #1f65cb;
+  font-weight: 900;
+}
+
+.ppt-final-cta h2 {
+  margin: 0.6rem 0 0;
+  font-size: clamp(1.4rem, 3vw, 2.3rem);
+}
+
+.ppt-final-cta p {
+  margin: 0.72rem auto 0;
+  max-width: 72ch;
+  color: var(--ppt-muted);
+  line-height: 1.58;
+}
+
+.ppt-cta-row {
+  margin-top: 1.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.62rem;
+  justify-content: center;
+}
+
+.ppt-finale-ribbon {
+  margin-top: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.ribbon-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(93, 131, 177, 0.36);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.42rem 0.72rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.35px;
+  color: var(--ppt-muted);
+  animation: chipFloat 6s ease-in-out infinite;
+}
+
+.ribbon-chip:nth-child(2n) {
+  animation-delay: 0.35s;
+}
+
+.ribbon-chip:nth-child(3n) {
+  animation-delay: 0.8s;
+}
+
+.ribbon-chip:hover {
+  transform: translateY(-2px);
+  border-color: rgba(16, 107, 255, 0.55);
+  color: var(--ppt-text);
+}
+
+/* ── Orbit (with logo) ── */
+.ppt-finale-orbit {
+  margin: 1.6rem auto 0;
+  width: min(100%, 420px);
+  height: 170px;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.orbit-ring {
+  position: absolute;
+  border-radius: 999px;
+  border: 1px dashed rgba(83, 121, 166, 0.45);
+}
+
+.ring-a {
+  width: 86%;
+  height: 74%;
+  animation: ringSpin 12s linear infinite;
+}
+
+.ring-b {
+  width: 65%;
+  height: 56%;
+  animation: ringSpin 9s linear infinite reverse;
+}
+
+.ring-c {
+  width: 43%;
+  height: 36%;
+  animation: ringSpin 6s linear infinite;
+}
+
+.orbit-pulse {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  box-shadow: 0 0 18px currentColor;
+  animation: pulseHop 4.8s ease-in-out infinite;
+}
+
+.pulse-a {
+  top: 20%;
+  left: 18%;
+  color: var(--ppt-accent-a);
+}
+
+.pulse-b {
+  top: 30%;
+  right: 19%;
+  color: var(--ppt-accent-b);
+  animation-delay: 0.7s;
+}
+
+.pulse-c {
+  bottom: 20%;
+  right: 28%;
+  color: var(--ppt-accent-c);
+  animation-delay: 1.4s;
+}
+
+.orbit-core {
+  border-radius: 999px;
+  border: 1px solid rgba(78, 118, 166, 0.42);
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.88), rgba(230, 242, 255, 0.76));
+  padding: 0.5rem 1.1rem 0.5rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  box-shadow: 0 14px 24px rgba(16, 52, 96, 0.16);
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  font-size: 0.95rem;
+}
+
+.orbit-core-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* ═══════════════════════
+   Scroll Reveal System
+   ═══════════════════════ */
+.reveal-section {
+  opacity: 0;
+  transform: translateY(48px);
+  transition: opacity 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.reveal-section.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger children — start hidden, animate when parent is revealed */
+.stagger-child {
+  opacity: 0;
+  transform: translateY(28px) scale(0.97);
+  transition: opacity 0.55s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.revealed .stagger-child,
+.stagger-child.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ═══════════════════════
+   Keyframes
+   ═══════════════════════ */
+@keyframes cardRise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes signalSweep {
+  from {
+    transform: translateX(-80%) rotate(18deg);
+  }
+
+  to {
+    transform: translateX(430%) rotate(18deg);
+  }
+}
+
+@keyframes ringSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes chipFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pulseHop {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.35) translateY(-5px);
+    opacity: 1;
+  }
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes logoFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.5rem);
+  }
+}
+
+@keyframes auraDrift {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(0.875rem) translateX(0.75rem);
+  }
+}
+
+/* ═══════════════════════
+   Dark Theme
+   ═══════════════════════ */
+.theme-dark .ppt-page {
+  --ppt-bg: #09101a;
+  --ppt-surface: rgba(15, 24, 39, 0.72);
+  --ppt-surface-strong: rgba(20, 31, 51, 0.78);
+  --ppt-border: rgba(89, 115, 155, 0.44);
+  --ppt-text: #e8effc;
+  --ppt-muted: #afc0dc;
+  --ppt-accent-a: #7aa4ff;
+  --ppt-accent-b: #2bc2d5;
+  --ppt-accent-c: #ffa070;
+  --ppt-shadow: 0 26px 52px rgba(5, 10, 20, 0.42);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(122, 164, 255, 0.25), transparent 41%),
+    radial-gradient(circle at 100% 8%, rgba(43, 194, 213, 0.21), transparent 38%),
+    radial-gradient(circle at 35% 100%, rgba(255, 160, 112, 0.17), transparent 42%),
+    linear-gradient(180deg, #090f19 0%, #0c1422 52%, #0f1a2b 100%);
+}
+
+.theme-dark .ppt-grid-overlay {
+  background-image:
+    linear-gradient(to right, rgba(108, 132, 166, 0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(108, 132, 166, 0.14) 1px, transparent 1px);
+}
+
+.theme-dark .ppt-nav {
+  background: rgba(11, 18, 30, 0.72);
+  box-shadow: 0 14px 36px rgba(4, 8, 18, 0.5);
+}
+
+.theme-dark .ppt-metric-card,
+.theme-dark .ppt-btn.ghost,
+.theme-dark .lane-role,
+.theme-dark .lane-metric,
+.theme-dark .ppt-signal-card {
+  background: rgba(20, 33, 53, 0.75);
+  color: var(--ppt-muted);
+}
+
+.theme-dark .ppt-btn.ghost {
+  border-color: rgba(126, 154, 196, 0.44);
+}
+
+.theme-dark .hero-card {
+  box-shadow: 0 1rem 2rem rgba(3, 8, 17, 0.35);
+}
+
+.theme-dark .brand-stage {
+  background: radial-gradient(circle, #1b2b43 0%, #1b2b4300 72%);
+}
+
+.theme-dark .hero-tagline {
+  color: #8cb7ff;
+}
+
+.theme-dark .landing-btn-ghost {
+  background: rgba(26, 38, 58, 0.72);
+  border-color: #476289;
+  color: #dbe7fb;
+}
+
+.theme-dark .landing-btn-ghost:hover {
+  background: #21314a;
+  border-color: #6386bf;
+}
+
+.theme-dark .lane-pulse {
+  background: color-mix(in oklab, var(--lane-accent) 18%, rgba(21, 35, 56, 0.82));
+}
+
+.theme-dark .ppt-signal-card::after {
+  background: linear-gradient(180deg, transparent, rgba(164, 188, 236, 0.24), transparent);
+}
+
+.theme-dark .ribbon-chip {
+  background: rgba(23, 35, 56, 0.84);
+  border-color: rgba(110, 142, 186, 0.46);
+  color: var(--ppt-muted);
+}
+
+.theme-dark .ribbon-chip:hover {
+  border-color: rgba(122, 164, 255, 0.68);
+}
+
+.theme-dark .orbit-ring {
+  border-color: rgba(109, 138, 177, 0.56);
+}
+
+.theme-dark .orbit-core {
+  border-color: rgba(106, 135, 176, 0.5);
+  background: linear-gradient(140deg, rgba(27, 40, 63, 0.9), rgba(21, 34, 55, 0.82));
+  box-shadow: 0 14px 28px rgba(5, 10, 20, 0.45);
+}
+
+/* ═══════════════════════
+   Responsive
+   ═══════════════════════ */
+@media (max-width: 1100px) {
+  .ppt-lane-grid,
+  .ppt-signal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .ppt-nav {
+    padding: 12px;
+  }
+
+  .ppt-brand small {
+    display: none;
+  }
+
+  .ppt-nav-actions {
+    gap: 0.4rem;
+  }
+
+  .ppt-btn {
+    padding: 0.6rem 0.86rem;
+    font-size: 0.78rem;
+  }
+
+  .ppt-main {
+    gap: 0.8rem;
+    padding: 0.8rem 0.5rem 0;
+  }
+
+  .hero-card,
+  .ppt-section,
+  .ppt-final-cta {
+    border-radius: 18px;
+  }
+
+  .ppt-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .ppt-lane-grid,
+  .ppt-signal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ppt-finale-orbit {
+    height: 146px;
+  }
+
+  .hero-card {
+    min-height: auto;
+  }
+}
