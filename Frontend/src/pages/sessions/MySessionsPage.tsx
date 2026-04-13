@@ -70,10 +70,10 @@ const MySessionsPage = () => {
   const reviewedSessionIds = new Set(myReviews?.content?.map((r: any) => r.sessionId) || []);
 
   // Resolve user names from IDs
-  const sessions = data?.content || [];
-  const userIdsToResolve: number[] = [...new Set(
-    sessions.map((s: any) => isMentor ? s.learnerId : s.mentorId).filter(Boolean)
-  )];
+  const rawSessions = data?.content || [];
+  const userIdsToResolve = Array.from(new Set<number>(
+    rawSessions.map((s: any) => isMentor ? s.learnerId : s.mentorId).filter(Boolean)
+  ));
   const { data: resolvedNames } = useQuery({
     queryKey: ['user-names', ...userIdsToResolve],
     queryFn: async () => {

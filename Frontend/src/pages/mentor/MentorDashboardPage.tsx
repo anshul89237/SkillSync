@@ -49,7 +49,7 @@ const MentorDashboardPage = () => {
   });
 
   // Resolve learner names from user IDs
-  const learnerIds: number[] = [...new Set((mentorSessionsObj?.content || []).map((s: any) => s.learnerId).filter(Boolean))];
+  const learnerIds = Array.from(new Set<number>((mentorSessionsObj?.content || []).map((s: any) => s.learnerId).filter(Boolean)));
   const { data: resolvedNames } = useQuery({
     queryKey: ['user-names', ...learnerIds],
     queryFn: async () => {
