@@ -71,7 +71,7 @@ const MySessionsPage = () => {
 
   // Resolve user names from IDs
   const sessions = data?.content || [];
-  const userIdsToResolve = [...new Set(
+  const userIdsToResolve: number[] = [...new Set(
     sessions.map((s: any) => isMentor ? s.learnerId : s.mentorId).filter(Boolean)
   )];
   const { data: resolvedNames } = useQuery({
