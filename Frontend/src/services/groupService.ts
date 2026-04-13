@@ -188,11 +188,13 @@ class GroupService {
   async postDiscussion(
     groupId: number,
     title: string,
-    content: string
+    content: string,
+    parentId?: number
   ): Promise<DiscussionPayload> {
     const res = await api.post(`/api/groups/${groupId}/message`, {
       title,
       content,
+      parentId,
     });
     return res.data;
   }

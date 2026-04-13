@@ -22,6 +22,8 @@ const GroupDetailPage = () => {
 
   const [activeTab, setActiveTab] = useState<'discussion' | 'members'>('discussion');
   const [newDiscussionContent, setNewDiscussionContent] = useState('');
+  const [replyingToId, setReplyingToId] = useState<number | null>(null);
+  const [replyContent, setReplyContent] = useState('');
 
   const { data: group, isLoading: groupLoading } = useQuery({
     queryKey: ['group', id],
@@ -71,8 +73,8 @@ const GroupDetailPage = () => {
   });
 
   const postDiscussionMutation = useMutation({
-    mutationFn: ({ title, content }: { title: string; content: string }) => 
-      groupService.postDiscussion(groupId, title, content),
+    mutationFn: ({ title, content, parentId }: { title: string; content: string; parentId?: number }) => 
+      groupService.postDiscussion(groupId, title, content, parentId),
     onSuccess: () => {
       showToast({ message: 'Message sent', type: 'success' });
       setNewDiscussionContent('');
@@ -121,9 +123,20 @@ const GroupDetailPage = () => {
       return;
     }
     
-    // Auto-generate title for the backend constraint to keep UI clean
-    const title = newDiscussionContent.substring(0, 50).trim() || 'Chat Message';
+    const title = newDiscussionContent.substring(0, 50).trim() || 'New Topic';
     postDiscussionMutation.mutate({ title, content: newDiscussionContent });
+  };
+
+  const handlePostReply = (parentId: number) => {
+    if (!replyContent.trim()) return;
+    
+    const title = replyContent.substring(0, 50).trim() || 'Reply';
+    postDiscussionMutation.mutate({ title, content: replyContent, parentId: parentId }, {
+      onSuccess: () => {
+        setReplyingToId(null);
+        setReplyContent('');
+      }
+    });
   };
 
   const handleLeaveGroup = async () => {
@@ -281,33 +294,35 @@ const GroupDetailPage = () => {
               </div>
             ) : (
               <>
-                <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/10">
-                  <form onSubmit={handlePostDiscussion} className="flex items-end gap-3">
-                    <div className="flex-1">
-                      <textarea
-                        value={newDiscussionContent}
-                        onChange={(event) => setNewDiscussionContent(event.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handlePostDiscussion(e as any);
-                          }
-                        }}
-                        rows={1}
-                        className="w-full bg-surface-container px-4 py-3 rounded-xl text-sm font-semibold text-on-surface outline-none focus:ring-1 focus:ring-primary border border-transparent resize-none max-h-32 min-h-[44px]"
-                        placeholder="Type a message... (Press Enter to send)"
-                        required
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={postDiscussionMutation.isPending || !newDiscussionContent.trim()}
-                      className="h-11 px-6 gradient-btn text-white shadow-md hover:shadow-lg rounded-xl font-bold transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:scale-100 disabled:shadow-none whitespace-nowrap"
-                    >
-                      {postDiscussionMutation.isPending ? '...' : 'Send'}
-                    </button>
-                  </form>
-                </div>
+                {currentRole !== 'ROLE_LEARNER' && (
+                  <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/10">
+                    <form onSubmit={handlePostDiscussion} className="flex items-end gap-3">
+                      <div className="flex-1">
+                        <textarea
+                          value={newDiscussionContent}
+                          onChange={(event) => setNewDiscussionContent(event.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handlePostDiscussion(e as any);
+                            }
+                          }}
+                          rows={1}
+                          className="w-full bg-surface-container px-4 py-3 rounded-xl text-sm font-semibold text-on-surface outline-none focus:ring-1 focus:ring-primary border border-transparent resize-none max-h-32 min-h-[44px]"
+                          placeholder="Post a new topic to the group... (Press Enter to send)"
+                          required
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={postDiscussionMutation.isPending || !newDiscussionContent.trim()}
+                        className="h-11 px-6 gradient-btn text-white shadow-md hover:shadow-lg rounded-xl font-bold transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:scale-100 disabled:shadow-none whitespace-nowrap"
+                      >
+                        {postDiscussionMutation.isPending ? '...' : 'Send'}
+                      </button>
+                    </form>
+                  </div>
+                )}
 
                 {discussionsLoading ? (
                   <div className="space-y-3">
@@ -315,45 +330,123 @@ const GroupDetailPage = () => {
                       <div key={index} className="h-24 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 animate-pulse" />
                     ))}
                   </div>
-                ) : discussions?.content && discussions.content.length > 0 ? (
-                  <div className="space-y-4">
-                    {discussions.content.map((discussion: DiscussionPayload) => {
-                      const canDelete = canDeleteDiscussion(discussion);
-                      const isDeleting =
-                        deleteDiscussionMutation.isPending &&
-                        deleteDiscussionMutation.variables === discussion.id;
+                ) : (() => {
+                  const rawDiscussions = discussions?.content || [];
+                  const parentDiscussions = rawDiscussions.filter(d => d.parentId == null);
+                  const getReplies = (parentId: number) => rawDiscussions.filter(d => d.parentId === parentId).reverse();
+                  
+                  if (parentDiscussions.length === 0) {
+                    return (
+                      <div className="text-center py-8 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm">
+                        <p className="text-on-surface-variant font-semibold">No messages yet.</p>
+                      </div>
+                    );
+                  }
 
-                      return (
-                        <div key={discussion.id} className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/10">
-                          <div className="flex justify-between items-start gap-4 mb-3">
-                            <div>
-                              <p className="text-xs font-bold text-primary mb-1">
-                                {discussion.authorName} <span className="text-on-surface-variant font-medium tracking-wide">({discussion.authorRole.replace('ROLE_', '')})</span>
-                                <span className="text-on-surface-variant font-medium px-2">•</span>
-                                <span className="text-on-surface-variant font-medium">{new Date(discussion.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                              </p>
+                  return (
+                    <div className="space-y-6">
+                      {parentDiscussions.map((discussion: DiscussionPayload) => {
+                        const canDelete = canDeleteDiscussion(discussion);
+                        const replies = getReplies(discussion.id);
+                        
+                        return (
+                          <div key={discussion.id} className="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-outline-variant/10">
+                            <div className="flex justify-between items-start gap-4 mb-2">
+                              <div>
+                                <p className="text-xs font-bold text-primary mb-1">
+                                  {discussion.authorName} <span className="text-on-surface-variant font-medium tracking-wide">({discussion.authorRole.replace('ROLE_', '')})</span>
+                                  <span className="text-on-surface-variant font-medium px-2">•</span>
+                                  <span className="text-on-surface-variant font-medium">{new Date(discussion.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                </p>
+                              </div>
+                              {canDelete && (
+                                <button
+                                  type="button"
+                                  onClick={() => void handleDeleteDiscussion(discussion)}
+                                  className="text-[11px] font-bold bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg transition"
+                                >
+                                  Delete
+                                </button>
+                              )}
                             </div>
-                            {canDelete && (
+                            <p className="text-on-surface whitespace-pre-wrap mb-4">{discussion.content}</p>
+
+                            {/* Replies Section */}
+                            {(replies.length > 0 || replyingToId === discussion.id) && (
+                              <div className="pl-4 border-l-2 border-outline-variant/20 space-y-4 mt-4">
+                                {replies.map(reply => (
+                                  <div key={reply.id} className="pt-2">
+                                    <div className="flex justify-between items-start">
+                                      <p className="text-xs font-bold text-primary mb-1">
+                                        {reply.authorName} <span className="text-on-surface-variant font-medium">({reply.authorRole.replace('ROLE_', '')})</span>
+                                        <span className="text-on-surface-variant font-medium px-2">•</span>
+                                        <span className="text-on-surface-variant font-medium">{new Date(reply.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                      </p>
+                                      {canDeleteDiscussion(reply) && (
+                                        <button
+                                          type="button"
+                                          onClick={() => void handleDeleteDiscussion(reply)}
+                                          className="text-[10px] font-bold text-red-500 hover:underline"
+                                        >
+                                          Delete
+                                        </button>
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-on-surface whitespace-pre-wrap">{reply.content}</p>
+                                  </div>
+                                ))}
+
+                                {replyingToId === discussion.id && (
+                                  <div className="flex items-end gap-2 pt-2">
+                                    <div className="flex-1">
+                                      <textarea
+                                        value={replyContent}
+                                        onChange={(e) => setReplyContent(e.target.value)}
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handlePostReply(discussion.id);
+                                          }
+                                        }}
+                                        autoFocus
+                                        rows={1}
+                                        className="w-full bg-surface-container px-3 py-2 rounded-lg text-sm font-semibold text-on-surface outline-none focus:ring-1 focus:ring-primary border border-transparent resize-none h-[40px]"
+                                        placeholder="Write a reply..."
+                                      />
+                                    </div>
+                                    <button
+                                      onClick={() => handlePostReply(discussion.id)}
+                                      disabled={postDiscussionMutation.isPending || !replyContent.trim()}
+                                      className="h-[40px] px-4 gradient-btn text-white rounded-lg text-sm font-bold disabled:opacity-50"
+                                    >
+                                      Reply
+                                    </button>
+                                    <button
+                                      onClick={() => { setReplyingToId(null); setReplyContent(''); }}
+                                      className="h-[40px] px-3 bg-surface-container rounded-lg text-sm font-bold text-on-surface-variant"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Reply Button Trigger */}
+                            {replyingToId !== discussion.id && (
                               <button
-                                type="button"
-                                onClick={() => void handleDeleteDiscussion(discussion)}
-                                disabled={isDeleting}
-                                className="text-[11px] font-bold bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                                onClick={() => { setReplyingToId(discussion.id); setReplyContent(''); }}
+                                className="text-sm font-bold text-primary hover:text-primary-dark transition flex items-center gap-1 mt-2"
                               >
-                                {isDeleting ? 'Deleting...' : 'Delete'}
+                                <span className="material-symbols-outlined text-[16px]">reply</span> Reply
                               </button>
                             )}
                           </div>
-                          <p className="text-on-surface whitespace-pre-wrap">{discussion.content}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm">
-                    <p className="text-on-surface-variant font-semibold">No messages yet. Start the conversation.</p>
-                  </div>
-                )}
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </>
             )}
           </div>
