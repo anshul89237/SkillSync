@@ -52,61 +52,70 @@ const Sidebar = ({ role }: SidebarProps) => {
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-20 lg:w-64 bg-surface-container-lowest/92 border-r border-outline-variant/25 flex flex-col justify-between z-40 transition-all duration-300 shadow-[6px_0_24px_rgba(99,102,241,0.05)] backdrop-blur-xl">
+    <aside className="fixed left-0 top-0 h-screen w-20 lg:w-64 bg-gradient-to-b from-[#1e1b4b] to-[#0f172a] flex flex-col justify-between z-40 transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.25)]">
       <div className="flex flex-col flex-1 overflow-y-auto w-full scrollbar-hide">
-        <div className="flex items-center justify-center lg:justify-start lg:px-6 h-20 shrink-0 border-b border-outline-variant/15">
-          <img src={logo} alt="SkillSync logo" className="w-10 h-10 object-contain" onError={(e: any) => { e.target.src = 'https://via.placeholder.com/40'; }} />
+        {/* Brand */}
+        <div className="flex items-center justify-center lg:justify-start lg:px-6 h-20 shrink-0 border-b border-white/10">
+          <img src={logo} alt="SkillSync logo" className="w-10 h-10 object-contain rounded-lg" onError={(e: any) => { e.target.src = 'https://via.placeholder.com/40'; }} />
           <div className="hidden lg:flex flex-col ml-3">
-            <span className="text-lg font-black text-primary tracking-tight leading-tight">SkillSync</span>
-            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.18em]">
+            <span className="text-lg font-black text-white tracking-tight leading-tight">SkillSync</span>
+            <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-[0.18em]">
               {role.replace('ROLE_', '')}
             </span>
           </div>
         </div>
 
-        <nav className="flex-1 w-full px-2 lg:px-4 py-8 space-y-2">
+        {/* Nav Items */}
+        <nav className="flex-1 w-full px-2 lg:px-3 py-6 space-y-1">
           {activeNav.map((item) => {
             const isActive = location.pathname === item.path;
-            const linkClasses = `flex items-center justify-center lg:justify-start px-2 lg:px-4 py-3 rounded-2xl transition-all duration-200 group ${
-              isActive
-                ? 'bg-primary/12 text-primary shadow-sm font-extrabold border border-primary/25'
-                : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-semibold border border-transparent'
-            }`;
 
             return (
-              <Link key={item.name} to={item.path} className={linkClasses}>
-                <span className={`material-symbols-outlined text-2xl transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`flex items-center justify-center lg:justify-start px-3 lg:px-4 py-3 rounded-xl transition-all duration-200 group relative ${
+                  isActive
+                    ? 'bg-indigo-500/20 text-white font-extrabold'
+                    : 'text-indigo-200/70 hover:bg-white/8 hover:text-white font-medium'
+                }`}
+              >
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-indigo-400 rounded-r-full" />
+                )}
+                <span className={`material-symbols-outlined text-2xl transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`}>
                   {item.icon}
                 </span>
-                <span className="hidden lg:inline ml-4 text-sm whitespace-nowrap">{item.name}</span>
+                <span className="hidden lg:inline ml-3 text-sm whitespace-nowrap">{item.name}</span>
               </Link>
             );
           })}
         </nav>
       </div>
 
-      <div className="w-full shrink-0 p-2 lg:p-4 border-t border-outline-variant/15 flex flex-col gap-2">
+      {/* Bottom Actions */}
+      <div className="w-full shrink-0 p-2 lg:p-3 border-t border-white/10 flex flex-col gap-1.5">
         {role === 'ROLE_LEARNER' && (
           <button
             onClick={() => navigate('/mentors')}
-            className="w-full flex items-center justify-center h-12 gradient-btn text-white rounded-2xl shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+            className="w-full flex items-center justify-center h-11 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
           >
             <span className="material-symbols-outlined text-xl">search</span>
             <span className="hidden lg:inline ml-2 text-sm font-bold whitespace-nowrap">Find a Mentor</span>
           </button>
         )}
 
-        <Link to="/help" className="w-full flex items-center justify-center lg:justify-start px-2 lg:px-4 h-12 rounded-2xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all duration-200 group">
-          <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">help</span>
-          <span className="hidden lg:inline ml-4 text-sm font-semibold whitespace-nowrap">Help Center</span>
+        <Link to="/help" className="w-full flex items-center justify-center lg:justify-start px-3 lg:px-4 h-11 rounded-xl text-indigo-300/70 hover:bg-white/8 hover:text-white transition-all duration-200 group">
+          <span className="material-symbols-outlined text-xl group-hover:scale-105 transition-transform">help</span>
+          <span className="hidden lg:inline ml-3 text-sm font-medium whitespace-nowrap">Help Center</span>
         </Link>
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center lg:justify-start px-2 lg:px-4 h-12 rounded-2xl text-error hover:bg-error/10 transition-all duration-200 group"
+          className="w-full flex items-center justify-center lg:justify-start px-3 lg:px-4 h-11 rounded-xl text-red-400/80 hover:bg-red-500/15 hover:text-red-400 transition-all duration-200 group"
         >
-          <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">logout</span>
-          <span className="hidden lg:inline ml-4 text-sm font-semibold whitespace-nowrap">Logout</span>
+          <span className="material-symbols-outlined text-xl group-hover:scale-105 transition-transform">logout</span>
+          <span className="hidden lg:inline ml-3 text-sm font-medium whitespace-nowrap">Logout</span>
         </button>
       </div>
     </aside>

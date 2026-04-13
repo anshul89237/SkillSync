@@ -10,7 +10,7 @@ import { store } from './store/index.ts'
 import { queryClient } from './utils/queryClient.ts'
 import { ThemeProvider } from './context/ThemeContext.tsx'
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "placeholder.apps.googleusercontent.com";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

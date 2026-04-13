@@ -105,152 +105,199 @@ const UserProfilePage = () => {
   if (isLoading) {
     return (
       <PageLayout>
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-lg text-gray-500">Loading profile...</div>
+        <div className="flex items-center justify-center h-[60vh]">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+            <p className="text-sm font-medium text-gray-500">Loading profile...</p>
+          </div>
         </div>
       </PageLayout>
     );
   }
 
+  const displayName = [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || 'Your Profile';
+  const initials = (profile?.firstName?.[0] || '') + (profile?.lastName?.[0] || '') || 'U';
+  const completionPct = profile?.profileCompletePct ?? 0;
+
+  const inputBaseClass =
+    'w-full px-4 py-3 rounded-xl border text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2';
+  const inputActiveClass = `${inputBaseClass} border-gray-300 bg-white text-gray-900 focus:ring-indigo-500 focus:border-indigo-500`;
+  const inputDisabledClass = `${inputBaseClass} border-gray-200 bg-gray-50 text-gray-700 cursor-default`;
+
   return (
     <PageLayout>
-      <div className="w-full space-y-6">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-8 text-white">
-          <h1 className="text-3xl font-bold">My Profile</h1>
-          <p className="text-blue-100 mt-2">Manage your personal information, bio, and profile image</p>
-        </div>
+      <div className="w-full max-w-4xl mx-auto space-y-6">
 
-        {/* Profile Card */}
-        <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
-          <div className="flex flex-col md:flex-row gap-8">
-            {/* Profile Picture */}
-            <div className="flex flex-col items-center">
-              <div className="relative">
-                <div className="w-32 h-32 rounded-full bg-blue-500 text-white flex items-center justify-center text-4xl font-bold border-4 border-gray-200">
-                  {(profile?.firstName?.[0] || '') + (profile?.lastName?.[0] || '') || 'U'}
-                </div>
+        {/* Hero Banner */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-72 h-72 bg-white rounded-full -translate-y-1/2 translate-x-1/3" />
+            <div className="absolute bottom-0 left-10 w-40 h-40 bg-white rounded-full translate-y-1/2" />
+          </div>
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 p-8 md:p-10">
+            {/* Avatar */}
+            <div className="relative">
+              <div className="w-28 h-28 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-4xl font-black shadow-lg border-2 border-white/30">
+                {initials}
               </div>
-              <div className="text-center mt-4">
-                <p className="font-semibold text-gray-900">
-                  {[profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || 'Your Profile'}
-                </p>
-                <p className="text-sm text-gray-500">{profile?.email}</p>
-                <span className="inline-block mt-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
+              {completionPct > 0 && (
+                <div className="absolute -bottom-2 -right-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-white text-indigo-700 text-xs font-bold shadow-md">
+                  <span className="material-symbols-outlined text-[14px]">trending_up</span>
+                  {completionPct}%
+                </div>
+              )}
+            </div>
+
+            {/* Info */}
+            <div className="text-center md:text-left flex-1">
+              <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">{displayName}</h1>
+              {profile?.email && (
+                <p className="text-indigo-200 text-sm mt-1 font-medium">{profile.email}</p>
+              )}
+              <div className="flex items-center gap-2 mt-3 justify-center md:justify-start">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs font-bold tracking-wide">
+                  <span className="material-symbols-outlined text-[14px]">badge</span>
                   {(role || 'ROLE_LEARNER').replace('ROLE_', '')}
                 </span>
               </div>
             </div>
 
-            {/* Profile Form */}
-            <div className="flex-1">
-              <form className="space-y-4">
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                  <input
-                    type="text"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
+            {/* Edit Toggle */}
+            <div className="shrink-0">
+              {!isEditing ? (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-indigo-700 font-bold text-sm hover:bg-indigo-50 transition-colors shadow-md"
+                >
+                  <span className="material-symbols-outlined text-[18px]">edit</span>
+                  Edit Profile
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSubmit}
+                    disabled={updateProfileMutation.isPending || !canSaveEdits}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-600 transition-colors shadow-md disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">check</span>
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white font-bold text-sm hover:bg-white/30 transition-colors"
+                  >
+                    Cancel
+                  </button>
                 </div>
+              )}
+            </div>
+          </div>
+        </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                  <input
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
+        {/* Profile Form */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h2 className="font-bold text-gray-900 flex items-center gap-2">
+              <span className="material-symbols-outlined text-indigo-500 text-xl">person</span>
+              Personal Information
+            </h2>
+          </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                  <textarea
-                    value={formData.bio}
-                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                    disabled={!isEditing}
-                    rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                    placeholder="Tell us about yourself..."
-                  />
-                </div>
+          <div className="p-6 space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">First Name</label>
+                <input
+                  type="text"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  disabled={!isEditing}
+                  className={isEditing ? inputActiveClass : inputDisabledClass}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Last Name</label>
+                <input
+                  type="text"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  disabled={!isEditing}
+                  className={isEditing ? inputActiveClass : inputDisabledClass}
+                />
+              </div>
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Bio</label>
+              <textarea
+                value={formData.bio}
+                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                disabled={!isEditing}
+                rows={3}
+                className={isEditing ? inputActiveClass : inputDisabledClass}
+                placeholder={isEditing ? 'Write a short bio...' : '—'}
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-
-                <div className="flex gap-2 pt-4">
-                  {!isEditing ? (
-                    <button
-                      type="button"
-                      onClick={() => setIsEditing(true)}
-                      className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-                    >
-                      Edit Profile
-                    </button>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        onClick={handleSubmit}
-                        disabled={updateProfileMutation.isPending || !canSaveEdits}
-                        className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-                      >
-                        Save Changes
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsEditing(false)}
-                        className="flex-1 bg-gray-400 text-white py-2 rounded-lg hover:bg-gray-500 transition"
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  )}
-                </div>
-              </form>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[14px]">call</span>
+                    Phone
+                  </span>
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  disabled={!isEditing}
+                  className={isEditing ? inputActiveClass : inputDisabledClass}
+                  placeholder={isEditing ? '+91 ...' : '—'}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[14px]">location_on</span>
+                    Location
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  disabled={!isEditing}
+                  className={isEditing ? inputActiveClass : inputDisabledClass}
+                  placeholder={isEditing ? 'City, Country' : '—'}
+                />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Account Settings */}
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Account Settings</h2>
-          {profile?.profileCompletePct !== undefined && (
-            <div className="mb-4 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900">
-              Profile completion: {profile.profileCompletePct}%
-            </div>
-          )}
-          <div className="space-y-3">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h2 className="font-bold text-gray-900 flex items-center gap-2">
+              <span className="material-symbols-outlined text-indigo-500 text-xl">settings</span>
+              Account Settings
+            </h2>
+          </div>
+
+          <div className="p-6 space-y-3">
             <button
               onClick={() => navigate('/settings/password')}
-              className="w-full text-left p-4 rounded bg-gray-50 hover:bg-gray-100 transition border border-gray-200"
+              className="w-full flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-indigo-50 border border-gray-200 hover:border-indigo-200 transition-all duration-200 group"
             >
-              <p className="font-medium text-gray-900">Change Password</p>
-              <p className="text-sm text-gray-500">Update your password regularly for security</p>
+              <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-200">
+                <span className="material-symbols-outlined text-xl">lock</span>
+              </div>
+              <div className="text-left flex-1">
+                <p className="font-bold text-gray-900 text-sm">Change Password</p>
+                <p className="text-xs text-gray-500 mt-0.5">Update your password regularly for account security</p>
+              </div>
+              <span className="material-symbols-outlined text-gray-400 group-hover:text-indigo-500 transition-colors">chevron_right</span>
             </button>
           </div>
         </div>
