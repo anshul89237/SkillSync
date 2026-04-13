@@ -401,7 +401,12 @@ const GroupDetailPage = () => {
                                     <div className="flex-1">
                                       <textarea
                                         value={replyContent}
-                                        onChange={(e) => setReplyContent(e.target.value)}
+                                        onChange={(e) => {
+                                          setReplyContent(e.target.value);
+                                          // Auto-resize
+                                          e.target.style.height = 'auto';
+                                          e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                                        }}
                                         onKeyDown={(e) => {
                                           if (e.key === 'Enter' && !e.shiftKey) {
                                             e.preventDefault();
@@ -409,21 +414,21 @@ const GroupDetailPage = () => {
                                           }
                                         }}
                                         autoFocus
-                                        rows={1}
-                                        className="w-full bg-surface-container px-3 py-2 rounded-lg text-sm font-semibold text-on-surface outline-none focus:ring-1 focus:ring-primary border border-transparent resize-none h-[40px]"
+                                        rows={2}
+                                        className="w-full bg-surface-container px-4 py-3 rounded-xl text-sm font-semibold text-on-surface outline-none focus:ring-2 focus:ring-primary/40 border border-outline-variant/20 resize-none min-h-[48px] max-h-[120px]"
                                         placeholder="Write a reply..."
                                       />
                                     </div>
                                     <button
                                       onClick={() => handlePostReply(discussion.id)}
                                       disabled={postDiscussionMutation.isPending || !replyContent.trim()}
-                                      className="h-[40px] px-4 gradient-btn text-white rounded-lg text-sm font-bold disabled:opacity-50"
+                                      className="h-[48px] px-5 gradient-btn text-white rounded-xl text-sm font-bold disabled:opacity-50"
                                     >
                                       Reply
                                     </button>
                                     <button
                                       onClick={() => { setReplyingToId(null); setReplyContent(''); }}
-                                      className="h-[40px] px-3 bg-surface-container rounded-lg text-sm font-bold text-on-surface-variant"
+                                      className="h-[48px] px-4 bg-surface-container rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors"
                                     >
                                       Cancel
                                     </button>

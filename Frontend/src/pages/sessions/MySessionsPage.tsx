@@ -105,6 +105,19 @@ const MySessionsPage = () => {
     return formatDateTimeIST(sessionDateTime);
   };
 
+  const isSessionEnded = (session: any): boolean => {
+    const endTime = session.endTime;
+    if (!endTime) {
+      // Fallback: if no endTime, check if startTime + 1hr has passed
+      const start = session.startTime || session.sessionDate;
+      if (!start) return false;
+      const startDate = new Date(start);
+      startDate.setHours(startDate.getHours() + 1);
+      return new Date() >= startDate;
+    }
+    return new Date() >= new Date(endTime);
+  };
+
   const handleLearnerCancel = async (sessionId: number) => {
     const confirmed = await requestConfirmation({
       title: 'Cancel Session?',
@@ -260,14 +273,23 @@ const MySessionsPage = () => {
                       </>
                     )}
 
-                    {isMentor && session.status === 'ACCEPTED' && (
-                      <button 
-                        onClick={() => handleMentorSessionAction(session.id, 'complete')}
-                        className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shrink-0"
-                      >
-                        Mark Complete
-                      </button>
-                    )}
+                    {isMentor && session.status === 'ACCEPTED' && (() => {
+                      const ended = isSessionEnded(session);
+                      return (
+                        <button 
+                          onClick={() => ended && handleMentorSessionAction(session.id, 'complete')}
+                          disabled={!ended}
+                          title={ended ? 'Mark this session as completed' : 'Available after the session ends'}
+                          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors shrink-0 ${
+                            ended 
+                              ? 'bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer' 
+                              : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'
+                          }`}
+                        >
+                          {ended ? 'Mark Complete' : '⏳ Session in progress'}
+                        </button>
+                      );
+                    })()}
 
                     {!isMentor && session.status === 'COMPLETED' && !reviewedSessionIds.has(session.id) && (
                       <button 
