@@ -493,8 +493,8 @@ const MentorDetailPage = () => {
           )}
         </div>
 
-        {/* Booking & Payment Panel - only shown when slot selected */}
-        {selectedSlot && (
+        {/* Booking & Payment Panel - only shown when slot selected and not viewing own profile */}
+        {selectedSlot && !isOwnProfile && (
           <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-lg border-2 border-primary/20 animate-in slide-in-from-bottom-4 duration-300">
             <h2 className="text-lg font-extrabold text-on-surface mb-4 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">event_available</span>
