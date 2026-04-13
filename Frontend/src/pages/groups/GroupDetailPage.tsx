@@ -22,7 +22,6 @@ const GroupDetailPage = () => {
 
   const [activeTab, setActiveTab] = useState<'discussion' | 'members'>('discussion');
   const [newDiscussionContent, setNewDiscussionContent] = useState('');
-  const [showDiscussionForm, setShowDiscussionForm] = useState(false);
 
   const { data: group, isLoading: groupLoading } = useQuery({
     queryKey: ['group', id],
