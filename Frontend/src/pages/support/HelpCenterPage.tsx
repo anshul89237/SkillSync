@@ -28,7 +28,7 @@ const HelpCenterPage = () => {
     <PageLayout>
       <div className="w-full max-w-4xl mx-auto space-y-6">
         {/* Hero */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-8 md:p-10">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-8 md:p-10 shadow-md">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/3 -translate-x-1/3" />
@@ -39,24 +39,24 @@ const HelpCenterPage = () => {
               Support Center
             </span>
             <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">How can we help?</h1>
-            <p className="text-indigo-100 mt-2 max-w-lg text-sm leading-relaxed">
+            <p className="text-indigo-100 mt-2 max-w-lg text-sm leading-relaxed font-medium">
               Browse common questions below, or reach out to our support team directly.
             </p>
           </div>
         </div>
 
         {/* Contact Card */}
-        <div className="flex items-center gap-4 p-5 rounded-2xl border border-indigo-200 bg-indigo-50 shadow-sm">
-          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 text-white shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-5 rounded-2xl border border-primary/20 bg-primary/10 shadow-sm">
+          <div className="hidden sm:flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-white shrink-0 shadow-md">
             <span className="material-symbols-outlined text-2xl">mail</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-gray-900 text-sm">Need direct help?</p>
-            <p className="text-indigo-700 font-semibold text-sm truncate">uadayasribasawoju@gmail.com</p>
+            <p className="font-bold text-on-surface text-sm">Need direct help?</p>
+            <p className="text-primary font-bold text-sm truncate">anshulkumar94122@gmail.com</p>
           </div>
           <a
-            href="mailto:uadayasribasawoju@gmail.com"
-            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm"
+            href="mailto:anshulkumar94122@gmail.com"
+            className="shrink-0 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl gradient-btn text-white text-sm font-bold transition-all shadow-sm hover:shadow-md active:scale-95"
           >
             <span className="material-symbols-outlined text-[16px]">send</span>
             Email Us
@@ -68,15 +68,15 @@ const HelpCenterPage = () => {
           {faqs.map((faq) => (
             <div
               key={faq.title}
-              className="group p-5 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-200"
+              className="group p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-300"
             >
-              <div className="flex items-start gap-3.5">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-200">
+              <div className="flex items-start gap-4">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary shrink-0 group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-sm">
                   <span className="material-symbols-outlined text-xl">{faq.icon}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 mb-1">{faq.title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">{faq.desc}</p>
+                  <h3 className="font-bold text-on-surface mb-1.5 group-hover:text-primary transition-colors">{faq.title}</h3>
+                  <p className="text-sm text-on-surface-variant leading-relaxed font-medium">{faq.desc}</p>
                 </div>
               </div>
             </div>
@@ -84,10 +84,10 @@ const HelpCenterPage = () => {
         </div>
 
         {/* Bottom tip */}
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 text-sm">
-          <span className="material-symbols-outlined text-amber-600 text-xl shrink-0">tips_and_updates</span>
-          <p className="text-amber-800">
-            <span className="font-bold">Tip:</span> Include your account email and role (Learner/Mentor/Admin) when contacting support for faster resolution.
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-ambar-500/10 border border-amber-500/20 text-sm">
+          <span className="material-symbols-outlined text-amber-500 text-xl shrink-0">tips_and_updates</span>
+          <p className="text-on-surface-variant font-medium">
+            <span className="font-bold text-amber-500">Tip:</span> Include your account email and role (Learner/Mentor/Admin) when contacting support for faster resolution.
           </p>
         </div>
       </div>
