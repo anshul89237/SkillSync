@@ -495,82 +495,117 @@ const MentorDetailPage = () => {
 
         {/* Booking & Payment Panel - only shown when slot selected and not viewing own profile */}
         {selectedSlot && !isOwnProfile && (
-          <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-lg border-2 border-primary/20 animate-in slide-in-from-bottom-4 duration-300">
-            <h2 className="text-lg font-extrabold text-on-surface mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">event_available</span>
-              Book This Session
-            </h2>
-
-            <div className="bg-primary/5 rounded-xl p-4 border border-primary/10 mb-4">
-              <div className="flex justify-between items-center">
+          <div className="mt-8 bg-surface-container-lowest rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-outline-variant/20 animate-in slide-in-from-bottom-6 duration-500 relative overflow-hidden">
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+            
+            <div className="flex flex-col lg:flex-row gap-8 relative z-10">
+              <div className="flex-1 space-y-8">
                 <div>
-                  <p className="font-bold text-on-surface">{weekdayNames[selectedSlot.dayOfWeek]}</p>
-                  <p className="text-sm text-on-surface-variant">{formatSlotRange(String(selectedSlot.startTime), String(selectedSlot.endTime))}</p>
+                  <h2 className="text-2xl font-extrabold text-on-surface flex items-center gap-3 mb-2">
+                    <span className="material-symbols-outlined text-primary text-3xl">event_available</span>
+                     Secure Your Session
+                  </h2>
+                  <p className="text-sm text-on-surface-variant font-medium">You're just one step away from booking your personalized mentorship session.</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Mentor</p>
-                  <p className="font-bold text-on-surface">{mentorDisplayName}</p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-4 bg-surface-container-low/50 p-5 rounded-2xl border border-outline-variant/10 hover:border-primary/20 transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold shrink-0">
+                      <span className="material-symbols-outlined text-[24px]">calendar_month</span>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1.5">Selected Time</p>
+                      <p className="font-bold text-on-surface text-sm leading-snug">{weekdayNames[selectedSlot.dayOfWeek]}<br/>{formatSlotRange(String(selectedSlot.startTime), String(selectedSlot.endTime))}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4 bg-surface-container-low/50 p-5 rounded-2xl border border-outline-variant/10 hover:border-primary/20 transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold shrink-0">
+                      <span className="material-symbols-outlined text-[24px]">timer</span>
+                    </div>
+                    <div className="w-full">
+                      <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest block mb-1.5">Session Duration</label>
+                      <div className="relative">
+                        <select
+                          value={selectedDurationMinutes}
+                          onChange={(e) => setSelectedDurationMinutes(Number(e.target.value))}
+                          className="w-full h-10 px-3 bg-surface-container border border-outline-variant/20 rounded-xl text-sm font-bold text-on-surface outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all cursor-pointer appearance-none"
+                        >
+                          {bookingDurationOptions.map((duration) => (
+                            <option key={duration} value={duration}>{duration} minutes</option>
+                          ))}
+                        </select>
+                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[20px]">expand_more</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="mb-4 rounded-xl border border-outline-variant/20 bg-surface-container p-4">
-              <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Session Duration</p>
-                  <p className="text-sm font-bold text-on-surface mt-1">Choose 30 to 120 minutes</p>
-                  <p className="text-xs text-on-surface-variant mt-1">Pick 30, 60, 90, or 120 minutes.</p>
-                </div>
+              {/* Payment Summary Column */}
+              <div className="w-full lg:w-[340px] shrink-0">
+                <div className="bg-gradient-to-br from-surface-container-lowest to-surface-container-low p-6 rounded-3xl border border-outline-variant/20 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-primary/40 to-primary"></div>
+                  
+                  <h3 className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-5 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[16px]">receipt_long</span> Payment Summary
+                  </h3>
+                  
+                  <div className="space-y-3 mb-6">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-semibold text-on-surface-variant">Base Rate</span>
+                      <span className="font-bold text-on-surface">₹{hourlyRate}/hr</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-semibold text-on-surface-variant">Duration Selected</span>
+                      <span className="font-bold text-on-surface">{selectedDurationMinutes} mins</span>
+                    </div>
+                  </div>
 
-                <div className="w-full md:w-64">
-                  <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest block mb-1">Duration</label>
-                  <select
-                    value={selectedDurationMinutes}
-                    onChange={(e) => setSelectedDurationMinutes(Number(e.target.value))}
-                    className="w-full h-11 px-3 bg-surface-container-low border border-outline-variant/30 rounded-lg text-sm font-bold text-on-surface outline-none focus:ring-2 focus:ring-primary"
+                  <div className="border-t border-dashed border-outline-variant/30 my-4"></div>
+
+                  <div className="flex justify-between items-end mb-6">
+                    <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest pb-1">Total Cost</span>
+                    <span className="text-4xl font-black text-primary tracking-tight">₹{estimatedCost.toFixed(0)}</span>
+                  </div>
+
+                  <button
+                    onClick={handlePayNow}
+                    disabled={isProcessing || hasDuplicateLearnerBooking}
+                    className="w-full h-14 gradient-btn text-white font-extrabold text-lg rounded-xl shadow-[0_4px_14px_rgba(99,102,241,0.3)] hover:shadow-[0_8px_24px_rgba(99,102,241,0.4)] hover:-translate-y-0.5 disabled:opacity-60 disabled:shadow-none disabled:hover:translate-y-0 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden"
                   >
-                    {bookingDurationOptions.map((duration) => (
-                      <option key={duration} value={duration}>{duration} minutes</option>
-                    ))}
-                  </select>
+                    {isProcessing && <span className="absolute inset-0 bg-white/20 animate-pulse"></span>}
+                    {isProcessing ? (
+                      <>
+                        <span className="material-symbols-outlined animate-spin text-[22px]">autorenew</span>
+                        <span className="text-sm font-bold">
+                          {loadingStep === 'session' && 'Reserving slot...'}
+                          {loadingStep === 'order' && 'Connecting...'}
+                          {loadingStep === 'verify' && 'Verifying...'}
+                        </span>
+                      </>
+                    ) : (
+                      hasDuplicateLearnerBooking ? <span className="text-sm">Session Already Booked</span> : (
+                        <>
+                          <span className="material-symbols-outlined text-[20px]">lock</span>
+                          Proceed to Pay
+                          <span className="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                        </>
+                      )
+                    )}
+                  </button>
+                  
+                  <div className="mt-4 flex items-center justify-center gap-1.5 opacity-60">
+                    <span className="material-symbols-outlined text-[14px] text-on-surface-variant">verified_user</span>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant text-center">
+                      Secure 256-bit Encryption
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <div className="flex justify-between items-center bg-surface-container rounded-xl p-4 mb-4 border border-outline-variant/10">
-              <span className="text-sm font-bold text-on-surface-variant">Estimated Cost</span>
-              <span className="text-2xl font-black text-primary">₹{estimatedCost.toFixed(0)}</span>
-            </div>
-
-            <button
-              onClick={handlePayNow}
-              disabled={isProcessing || hasDuplicateLearnerBooking || isOwnProfile}
-              className="w-full h-14 gradient-btn text-white font-extrabold text-lg rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-70 active:scale-[0.98] transition-all flex items-center justify-center gap-3 relative group"
-            >
-              {isProcessing && <span className="absolute inset-0 bg-white/20 animate-pulse"></span>}
-              {isProcessing ? (
-                <>
-                  <span className="material-symbols-outlined animate-spin text-[24px]">autorenew</span>
-                  <span className="text-base font-bold">
-                    {loadingStep === 'session' && 'Reserving slot...'}
-                    {loadingStep === 'order' && 'Connecting to Razorpay...'}
-                    {loadingStep === 'verify' && 'Verifying payment...'}
-                  </span>
-                </>
-              ) : (
-                isOwnProfile ? 'This is your own profile' : hasDuplicateLearnerBooking ? 'Session already booked for this slot' : (
-                  <>
-                    <span className="material-symbols-outlined text-[22px]">lock</span>
-                    Pay Now - ₹{estimatedCost.toFixed(0)}
-                    <span className="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                  </>
-                )
-              )}
-            </button>
-
-            <p className="text-center text-[10px] text-on-surface-variant mt-3 opacity-70">
-              Powered by Razorpay • Secure 256-bit encryption
-            </p>
           </div>
         )}
 
