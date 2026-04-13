@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../store';
 import api from '../../services/axios';
 import { useToast } from '../../components/ui/Toast';
 import { formatDateTimeIST } from '../../utils/dateTime';
@@ -14,6 +16,7 @@ declare global {
 const CheckoutPage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const currentUser = useSelector((state: RootState) => state.auth.user);
   const { showToast } = useToast();
 
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal'>('card');
@@ -21,7 +24,16 @@ const CheckoutPage = () => {
   const pendingSessionIdRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!state || !state.mentorId) navigate('/mentors', { replace: true });
+    if (!state || !state.mentorId) {
+      navigate('/mentors', { replace: true });
+      return;
+    }
+    
+    if (currentUser && Number(state.mentorId) === Number(currentUser.id)) {
+      showToast({ message: "You cannot book a session with yourself.", type: "error" });
+      navigate('/mentors', { replace: true });
+      return;
+    }
     
     // Dynamically load Razorpay SDK
     const script = document.createElement('script');
@@ -32,7 +44,7 @@ const CheckoutPage = () => {
     return () => {
       document.body.removeChild(script);
     };
-  }, [state, navigate]);
+  }, [state, navigate, currentUser, showToast]);
 
   if (!state) return null;
 
