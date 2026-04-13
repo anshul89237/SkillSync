@@ -253,9 +253,9 @@ const GroupDetailPage = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as typeof activeTab)}
-                className={`whitespace-nowrap px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 capitalize ${
+                className={`whitespace-nowrap px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 capitalize ${
                   activeTab === tab
-                    ? 'bg-primary text-white shadow-md scale-[1.02]'
+                    ? 'gradient-btn text-white shadow-md scale-[1.02]'
                     : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                 }`}
               >
@@ -282,7 +282,7 @@ const GroupDetailPage = () => {
               <>
                 <button
                   onClick={() => setShowDiscussionForm((value) => !value)}
-                  className="h-10 px-6 bg-primary text-on-primary rounded-lg font-bold hover:bg-primary-dark transition-colors"
+                  className="h-11 px-8 gradient-btn text-white shadow-md hover:shadow-lg rounded-xl font-bold transition-all hover:-translate-y-0.5"
                 >
                   {showDiscussionForm ? 'Close Composer' : '+ New Message'}
                 </button>
@@ -318,7 +318,7 @@ const GroupDetailPage = () => {
                         <button
                           type="submit"
                           disabled={postDiscussionMutation.isPending}
-                          className="h-10 px-6 bg-primary text-on-primary rounded-lg font-bold hover:bg-primary-dark transition-colors disabled:opacity-50"
+                          className="h-11 px-8 gradient-btn text-white shadow-md hover:shadow-lg rounded-xl font-bold transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
                         >
                           {postDiscussionMutation.isPending ? 'Posting...' : 'Post Message'}
                         </button>

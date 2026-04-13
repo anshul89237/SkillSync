@@ -49,6 +49,7 @@ const AdminDashboardPage = () => {
       gradient: 'from-blue-500 to-cyan-400',
       bg: 'bg-blue-50',
       text: 'text-blue-700',
+      path: '/admin/users'
     },
     {
       label: 'Approved Mentors',
@@ -57,6 +58,7 @@ const AdminDashboardPage = () => {
       gradient: 'from-violet-500 to-purple-400',
       bg: 'bg-violet-50',
       text: 'text-violet-700',
+      path: '/admin/mentor-approvals'
     },
     {
       label: 'Total Sessions',
@@ -65,6 +67,7 @@ const AdminDashboardPage = () => {
       gradient: 'from-emerald-500 to-green-400',
       bg: 'bg-emerald-50',
       text: 'text-emerald-700',
+      path: null
     },
     {
       label: 'Pending Approvals',
@@ -73,6 +76,7 @@ const AdminDashboardPage = () => {
       gradient: 'from-amber-500 to-orange-400',
       bg: 'bg-amber-50',
       text: 'text-amber-700',
+      path: '/admin/mentor-approvals'
     },
   ];
 
@@ -127,9 +131,12 @@ const AdminDashboardPage = () => {
           {statCards.map((card) => (
             <div
               key={card.label}
-              className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/10 hover:shadow-md transition-all hover:-translate-y-0.5 relative overflow-hidden group"
+              onClick={() => {
+                if (card.path) navigate(card.path);
+              }}
+              className={`bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/10 relative overflow-hidden group ${card.path ? 'cursor-pointer hover:shadow-md hover:border-primary/20 transition-all hover:-translate-y-1' : ''}`}
             >
-              <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${card.gradient} opacity-10 rounded-full blur-xl -mr-6 -mt-6 group-hover:opacity-20 transition-opacity`}></div>
+              <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${card.gradient} opacity-10 rounded-full blur-xl -mr-6 -mt-6 ${card.path ? 'group-hover:opacity-20 transition-opacity' : ''}`}></div>
               <div className="flex items-start justify-between mb-4">
                 <div className={`w-12 h-12 ${card.bg} rounded-xl flex items-center justify-center`}>
                   <span className={`material-symbols-outlined text-[24px] ${card.text}`}>{card.icon}</span>
