@@ -48,6 +48,29 @@ const MentorDashboardPage = () => {
     enabled: !!mentorId
   });
 
+  // Resolve learner names from user IDs
+  const learnerIds = [...new Set((mentorSessionsObj?.content || []).map((s: any) => s.learnerId).filter(Boolean))];
+  const { data: resolvedNames } = useQuery({
+    queryKey: ['user-names', ...learnerIds],
+    queryFn: async () => {
+      const names: Record<number, string> = {};
+      await Promise.all(
+        learnerIds.map(async (id: number) => {
+          try {
+            const res = await api.get(`/api/auth/internal/users/${id}`, { _skipErrorRedirect: true } as any);
+            const u = res.data;
+            const fullName = [u.firstName, u.lastName].filter(Boolean).join(' ').trim();
+            names[id] = fullName || u.email || `Learner #${id}`;
+          } catch {
+            names[id] = `Learner #${id}`;
+          }
+        })
+      );
+      return names;
+    },
+    enabled: learnerIds.length > 0,
+  });
+
   // Mutations
   const acceptMutation = useMutation({
     mutationFn: async (id: number) => api.put(`/api/sessions/${id}/accept`, undefined, { _skipErrorRedirect: true } as any),
@@ -96,6 +119,9 @@ const MentorDashboardPage = () => {
 
   const getSessionDisplayName = (session: any) => {
     if (session.learnerName) return session.learnerName;
+    if (resolvedNames && session.learnerId && resolvedNames[session.learnerId]) {
+      return resolvedNames[session.learnerId];
+    }
     return 'Learner';
   };
 
@@ -103,6 +129,18 @@ const MentorDashboardPage = () => {
     const raw = session.startTime || session.sessionDate;
     if (!raw) return 'Time unavailable';
     return formatDateTimeIST(raw);
+  };
+
+  const isSessionEnded = (session: any): boolean => {
+    const endTime = session.endTime;
+    if (!endTime) {
+      const start = session.startTime || session.sessionDate;
+      if (!start) return false;
+      const startDate = new Date(start);
+      startDate.setMinutes(startDate.getMinutes() + (session.durationMinutes || 60));
+      return new Date() >= startDate;
+    }
+    return new Date() >= new Date(endTime);
   };
 
   const rightPanel = (
@@ -297,14 +335,23 @@ const MentorDashboardPage = () => {
                 </div>
 
                 <div className="flex items-center gap-2 self-end md:self-auto">
-
-                  <button 
-                    onClick={() => completeMutation.mutate(session.id)}
-                    disabled={completeMutation.isPending}
-                    className="text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-2.5 rounded-lg text-sm font-bold transition-colors disabled:opacity-50 whitespace-nowrap"
-                  >
-                    Mark Comp
-                  </button>
+                  {(() => {
+                    const ended = isSessionEnded(session);
+                    return (
+                      <button 
+                        onClick={() => ended && completeMutation.mutate(session.id)}
+                        disabled={!ended || completeMutation.isPending}
+                        title={ended ? 'Mark this session as completed' : 'Available after the session ends'}
+                        className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-colors whitespace-nowrap ${
+                          ended
+                            ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200'
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300'
+                        }`}
+                      >
+                        {ended ? 'Mark Complete' : '⏳ In Progress'}
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             ))

@@ -69,6 +69,32 @@ const MySessionsPage = () => {
 
   const reviewedSessionIds = new Set(myReviews?.content?.map((r: any) => r.sessionId) || []);
 
+  // Resolve user names from IDs
+  const sessions = data?.content || [];
+  const userIdsToResolve = [...new Set(
+    sessions.map((s: any) => isMentor ? s.learnerId : s.mentorId).filter(Boolean)
+  )];
+  const { data: resolvedNames } = useQuery({
+    queryKey: ['user-names', ...userIdsToResolve],
+    queryFn: async () => {
+      const names: Record<number, string> = {};
+      await Promise.all(
+        userIdsToResolve.map(async (id: number) => {
+          try {
+            const res = await api.get(`/api/auth/internal/users/${id}`, { _skipErrorRedirect: true } as any);
+            const u = res.data;
+            const fullName = [u.firstName, u.lastName].filter(Boolean).join(' ').trim();
+            names[id] = fullName || u.email || `User #${id}`;
+          } catch {
+            names[id] = `User #${id}`;
+          }
+        })
+      );
+      return names;
+    },
+    enabled: userIdsToResolve.length > 0,
+  });
+
   const cancelMutation = useMutation({
     mutationFn: async (id: number) => {
       const res = await api.put(`/api/sessions/${id}/cancel`);
@@ -94,10 +120,18 @@ const MySessionsPage = () => {
 
   const getSessionLabel = (session: any) => {
     if (isMentor) {
-      return session.learnerName || 'Learner';
+      if (session.learnerName) return session.learnerName;
+      if (resolvedNames && session.learnerId && resolvedNames[session.learnerId]) {
+        return resolvedNames[session.learnerId];
+      }
+      return 'Learner';
     }
 
-    return session.mentorName || 'Mentor';
+    if (session.mentorName) return session.mentorName;
+    if (resolvedNames && session.mentorId && resolvedNames[session.mentorId]) {
+      return resolvedNames[session.mentorId];
+    }
+    return 'Mentor';
   };
 
   const getSessionDateTimeLabel = (sessionDateTime?: string) => {
