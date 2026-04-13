@@ -45,18 +45,14 @@ const DiscoverMentorsPage = () => {
 
   // Fetch Mentors
   const { data, isLoading } = useQuery({
-    queryKey: ['mentors', 'search', page, appliedFilters.skill, appliedFilters.rating, appliedFilters.priceRange],
+    queryKey: ['mentors', 'search', page, appliedFilters.skill, appliedFilters.priceRange],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.set('page', String(page));
-      params.set('size', '9');
+      params.set('size', '50');
 
       if (appliedFilters.skill) {
         params.set('skill', appliedFilters.skill);
-      }
-
-      if (appliedFilters.rating) {
-        params.set('rating', appliedFilters.rating);
       }
 
       if (appliedFilters.priceRange === 'under50') {
@@ -75,18 +71,26 @@ const DiscoverMentorsPage = () => {
 
   useEffect(() => {
     if (data) {
+      let results = data.content || [];
+      
+      // Client-side rating filter (backend avgRating may be stale)
+      if (appliedFilters.rating) {
+        const minRating = parseFloat(appliedFilters.rating);
+        results = results.filter((m: any) => (m.avgRating || 0) >= minRating);
+      }
+      
       if (page === 0) {
-        setMentorsList(data.content || []);
+        setMentorsList(results);
       } else {
         setMentorsList(prev => {
-          const newItems = (data.content || []).filter((item: any) => !prev.some(p => p.id === item.id));
+          const newItems = results.filter((item: any) => !prev.some((p: any) => p.id === item.id));
           return [...prev, ...newItems];
         });
       }
-      setTotalElements(data.totalElements || 0);
+      setTotalElements(results.length);
       setIsLast(data.last ?? true);
     }
-  }, [data, page]);
+  }, [data, page, appliedFilters.rating]);
 
   const applyFilters = () => {
     setPage(0);
