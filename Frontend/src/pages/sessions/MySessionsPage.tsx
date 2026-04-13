@@ -58,6 +58,17 @@ const MySessionsPage = () => {
     refetchInterval: activeTab === 'Pending' ? 30000 : false,
   });
 
+  const { data: myReviews } = useQuery({
+    queryKey: ['my-reviews', userId],
+    queryFn: async () => {
+      const res = await api.get('/api/reviews/me?size=1000');
+      return res.data;
+    },
+    enabled: !isMentor && !!userId,
+  });
+
+  const reviewedSessionIds = new Set(myReviews?.content?.map((r: any) => r.sessionId) || []);
+
   const cancelMutation = useMutation({
     mutationFn: async (id: number) => {
       const res = await api.put(`/api/sessions/${id}/cancel`);
@@ -258,13 +269,19 @@ const MySessionsPage = () => {
                       </button>
                     )}
 
-                    {!isMentor && session.status === 'COMPLETED' && (
+                    {!isMentor && session.status === 'COMPLETED' && !reviewedSessionIds.has(session.id) && (
                       <button 
                         onClick={() => setReviewModalData({ isOpen: true, mentorId: session.mentorId, sessionId: session.id })}
                         className="bg-primary/10 hover:bg-primary/20 text-primary px-4 py-2 rounded-lg text-sm font-bold transition-colors border border-primary/20 shrink-0"
                       >
                         Leave Review
                       </button>
+                    )}
+
+                    {!isMentor && session.status === 'COMPLETED' && reviewedSessionIds.has(session.id) && (
+                      <span className="text-emerald-600 bg-emerald-50 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-200 shrink-0">
+                        Reviewed
+                      </span>
                     )}
                   </div>
                 </div>
