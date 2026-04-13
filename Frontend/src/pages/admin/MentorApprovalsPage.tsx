@@ -124,7 +124,7 @@ const MentorApprovalsPage = () => {
 
                     <div>
                       <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1">Bio</p>
-                      <p className="text-sm text-on-surface-variant line-clamp-3">{mentor.bio || 'No bio provided'}</p>
+                      <p className="text-sm text-on-surface-variant whitespace-pre-wrap">{mentor.bio || 'No bio provided'}</p>
                     </div>
 
                     <div>

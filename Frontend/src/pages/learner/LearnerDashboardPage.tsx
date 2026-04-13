@@ -160,19 +160,19 @@ const LearnerDashboardPage = () => {
       <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/15">
         <h3 className="font-bold text-lg text-on-surface mb-2">Apply As Mentor</h3>
         {mentorApplied ? (
-          <div className={`rounded-xl border p-4 ${
-            mentorStatus === 'APPROVED' ? 'border-green-300 bg-green-50' :
-            mentorStatus === 'REJECTED' ? 'border-red-300 bg-red-50' :
-            'border-amber-300 bg-amber-50'
+          <div className={`rounded-xl border p-4 transition-colors ${
+            mentorStatus === 'APPROVED' ? 'border-green-500/30 bg-green-500/10' :
+            mentorStatus === 'REJECTED' ? 'border-red-500/30 bg-red-500/10' :
+            'border-amber-500/30 bg-amber-500/10'
           }`}>
             <p className="text-sm font-semibold text-on-surface">
-              Application Status: <span className={`font-bold ${
-                mentorStatus === 'APPROVED' ? 'text-green-600' :
-                mentorStatus === 'REJECTED' ? 'text-red-600' :
-                'text-amber-600'
+              Application Status: <span className={`font-bold ml-1 ${
+                mentorStatus === 'APPROVED' ? 'text-green-600 dark:text-green-400' :
+                mentorStatus === 'REJECTED' ? 'text-red-600 dark:text-red-400' :
+                'text-amber-600 dark:text-amber-400'
               }`}>{mentorStatus || 'PENDING'}</span>
             </p>
-            <p className="text-xs text-on-surface-variant mt-2">
+            <p className="text-xs text-on-surface-variant mt-2 leading-relaxed">
               {mentorStatus === 'APPROVED' ? 'Congratulations! You are now a mentor. Log out and back in to access your mentor dashboard.' :
                mentorStatus === 'REJECTED' ? 'Your application was not approved. You may contact support for more details.' :
                'Your application is under review by an admin. You will be notified once it is approved.'}
