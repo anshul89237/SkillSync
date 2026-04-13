@@ -51,7 +51,7 @@ const mapGroup = (group: any): GroupData => {
   return {
     id: group.id,
     name: group.name,
-    description: group.description || 'No description provided.',
+    description: group.description || '',
     category: group.category || 'General',
     maxMembers: group.maxMembers,
     createdBy: group.createdBy,

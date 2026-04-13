@@ -36,6 +36,7 @@ const AdminGroupsPage = () => {
 
   const [membersGroup, setMembersGroup] = useState<GroupData | null>(null);
   const [membersPage, setMembersPage] = useState(0);
+  const [newMemberEmail, setNewMemberEmail] = useState('');
 
   const { data: groupsData, isLoading } = useQuery({
     queryKey: ['admin', 'groups', page, searchText, categoryFilter],
@@ -101,6 +102,23 @@ const AdminGroupsPage = () => {
       queryClient.invalidateQueries({ queryKey: ['groups'] });
     },
     onError: () => showToast({ message: 'Failed to remove member', type: 'error' }),
+  });
+
+  const addMemberMutation = useMutation({
+    mutationFn: ({ groupId, email }: { groupId: number; email: string }) =>
+      groupService.addGroupMember(groupId, email),
+    onSuccess: () => {
+      showToast({ message: 'Member added successfully', type: 'success' });
+      setNewMemberEmail('');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'groups'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'groups', membersGroup?.id, 'members'] });
+      queryClient.invalidateQueries({ queryKey: ['group', membersGroup?.id, 'members'] });
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || 'Failed to add member. Check the email.';
+      showToast({ message: msg, type: 'error' });
+    },
   });
 
   const groups = groupsData?.content || [];
@@ -266,7 +284,7 @@ const AdminGroupsPage = () => {
                     <tr key={group.id} className="border-b border-outline-variant/5 hover:bg-surface-container-low/50 transition-colors">
                       <td className="py-3 px-5">
                         <p className="text-sm font-bold text-on-surface">{group.name}</p>
-                        <p className="text-xs text-on-surface-variant line-clamp-2">{group.description}</p>
+                        <p className="text-xs text-on-surface-variant line-clamp-2">{group.description || 'No description provided.'}</p>
                       </td>
                       <td className="py-3 px-5 text-sm text-on-surface-variant">{group.category}</td>
                       <td className="py-3 px-5 text-sm text-on-surface">{group.memberCount}</td>
@@ -449,7 +467,35 @@ const AdminGroupsPage = () => {
                 </button>
               </div>
 
-              <div className="px-6 py-5 space-y-3 max-h-[65vh] overflow-y-auto">
+              {/* Add Member Form */}
+              <div className="px-6 py-4 border-b border-outline-variant/10 bg-surface-container-lowest">
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!newMemberEmail.trim()) return;
+                    addMemberMutation.mutate({ groupId: membersGroup.id, email: newMemberEmail.trim() });
+                  }}
+                  className="flex gap-2"
+                >
+                  <input
+                    type="email"
+                    value={newMemberEmail}
+                    onChange={(e) => setNewMemberEmail(e.target.value)}
+                    placeholder="User email address (e.g. mentor@skillsync.com)"
+                    className="flex-1 h-10 bg-surface-container px-3 rounded-lg text-sm font-semibold text-on-surface outline-none focus:ring-1 focus:ring-primary border border-transparent"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    disabled={addMemberMutation.isPending}
+                    className="h-10 px-4 bg-primary text-on-primary rounded-lg text-sm font-bold shadow-sm hover:bg-primary-dark transition-all disabled:opacity-50"
+                  >
+                    {addMemberMutation.isPending ? 'Adding...' : 'Add Member'}
+                  </button>
+                </form>
+              </div>
+
+              <div className="px-6 py-5 space-y-3 max-h-[55vh] overflow-y-auto">
                 {membersLoading ? (
                   <p className="text-sm text-on-surface-variant">Loading members...</p>
                 ) : memberRows.length === 0 ? (
