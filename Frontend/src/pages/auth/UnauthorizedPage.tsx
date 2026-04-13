@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import logo from '../../assets/skillsync-logo.png';
+import logo from '../../assets/skillsync-logo-new.svg';
 
 const UnauthorizedPage = () => {
   const navigate = useNavigate();

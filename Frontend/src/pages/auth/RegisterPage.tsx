@@ -7,7 +7,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import api from '../../services/axios';
 import { useToast } from '../../components/ui/Toast';
 import { setCredentials } from '../../store/slices/authSlice';
-import logo from '../../assets/skillsync-logo.png';
+import logo from '../../assets/skillsync-logo-new.svg';
 import type { AuthResponse, OAuthResponse } from '../../types';
 
 type RegisterFormValues = {

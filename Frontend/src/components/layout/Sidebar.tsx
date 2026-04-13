@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
 import api from '../../services/axios';
-import logo from '../../assets/skillsync-logo.png';
+import logo from '../../assets/skillsync-logo-new.svg';
 
 interface SidebarProps {
   role: 'ROLE_LEARNER' | 'ROLE_MENTOR' | 'ROLE_ADMIN';
