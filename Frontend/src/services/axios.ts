@@ -134,6 +134,8 @@ api.interceptors.response.use(
             // Fall through to forced logout only when sanity check also fails.
           }
 
+          const { queryClient } = await import('../utils/queryClient');
+          queryClient.clear();
           store.dispatch(logout());
           window.location.href = '/login?reason=session_expired';
         }

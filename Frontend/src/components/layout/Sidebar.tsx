@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
 import api from '../../services/axios';
 import logo from '../../assets/skillsync-logo-new.svg';
+import { queryClient } from '../../utils/queryClient';
 
 interface SidebarProps {
   role: 'ROLE_LEARNER' | 'ROLE_MENTOR' | 'ROLE_ADMIN';
@@ -47,6 +48,7 @@ const Sidebar = ({ role, isCollapsed, setIsCollapsed }: SidebarProps) => {
     } catch (e) {
       console.warn('Logout request failed cleanly', e);
     } finally {
+      queryClient.clear();
       dispatch(logout());
       localStorage.clear();
       navigate('/login');
