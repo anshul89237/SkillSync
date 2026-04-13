@@ -52,10 +52,10 @@ const HelpCenterPage = () => {
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-gray-900 text-sm">Need direct help?</p>
-            <p className="text-indigo-700 font-semibold text-sm truncate">support@skillsync.app</p>
+            <p className="text-indigo-700 font-semibold text-sm truncate">uadayasribasawoju@gmail.com</p>
           </div>
           <a
-            href="mailto:support@skillsync.app"
+            href="mailto:uadayasribasawoju@gmail.com"
             className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined text-[16px]">send</span>

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import userService from '../../services/userService';
 import PageLayout from '../../components/layout/PageLayout';
 import { useToast } from '../../components/ui/Toast';
@@ -16,7 +15,6 @@ const UserProfilePage = () => {
   const { showToast } = useToast();
   const role = useSelector((state: RootState) => state.auth.role);
 
-  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -24,9 +22,7 @@ const UserProfilePage = () => {
     phone: '',
     location: '',
   });
-  const [canSaveEdits, setCanSaveEdits] = useState(false);
 
-  // Fetch user profile
   const { data: profile, isLoading } = useQuery({
     queryKey: ['user', 'profile'],
     queryFn: () => userService.getMyProfile(),
@@ -34,7 +30,6 @@ const UserProfilePage = () => {
 
   useEffect(() => {
     if (!profile) return;
-
     setFormData({
       firstName: profile.firstName || '',
       lastName: profile.lastName || '',
@@ -44,18 +39,6 @@ const UserProfilePage = () => {
     });
   }, [profile]);
 
-  useEffect(() => {
-    if (!isEditing) {
-      setCanSaveEdits(false);
-      return;
-    }
-
-    // Prevent accidental immediate submit when switching from Edit button to Save button.
-    const timer = window.setTimeout(() => setCanSaveEdits(true), 600);
-    return () => window.clearTimeout(timer);
-  }, [isEditing]);
-
-  // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: () => {
       const cleanedPayload = {
@@ -65,12 +48,10 @@ const UserProfilePage = () => {
         phone: formData.phone.trim() || undefined,
         location: formData.location.trim() || undefined,
       };
-
       return userService.updateProfile(cleanedPayload);
     },
     onSuccess: () => {
       showToast({ message: 'Profile updated successfully', type: 'success' });
-      setIsEditing(false);
       dispatch(updateUserName({
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
@@ -83,23 +64,24 @@ const UserProfilePage = () => {
     },
   });
 
-
   const handleSubmit = () => {
-    if (!isEditing || !canSaveEdits) {
-      return;
-    }
-
     if (formData.firstName.trim() && formData.firstName.trim().length < 2) {
       showToast({ message: 'First name must be at least 2 characters.', type: 'error' });
       return;
     }
-
     if (formData.lastName.trim() && formData.lastName.trim().length < 2) {
       showToast({ message: 'Last name must be at least 2 characters.', type: 'error' });
       return;
     }
-
     updateProfileMutation.mutate();
+  };
+
+  const isDirty = () => {
+    return profile?.firstName !== formData.firstName ||
+           profile?.lastName !== formData.lastName ||
+           (profile?.bio || '') !== formData.bio ||
+           (profile?.phone || '') !== formData.phone ||
+           (profile?.location || '') !== formData.location;
   };
 
   if (isLoading) {
@@ -119,10 +101,7 @@ const UserProfilePage = () => {
   const initials = (profile?.firstName?.[0] || '') + (profile?.lastName?.[0] || '') || 'U';
   const completionPct = profile?.profileCompletePct ?? 0;
 
-  const inputBaseClass =
-    'w-full px-4 py-3 rounded-xl border text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2';
-  const inputActiveClass = `${inputBaseClass} border-gray-300 bg-white text-gray-900 focus:ring-indigo-500 focus:border-indigo-500`;
-  const inputDisabledClass = `${inputBaseClass} border-gray-200 bg-gray-50 text-gray-700 cursor-default`;
+  const inputClass = 'w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200';
 
   return (
     <PageLayout>
@@ -162,41 +141,25 @@ const UserProfilePage = () => {
               </div>
             </div>
 
-            {/* Edit Toggle */}
-            <div className="shrink-0">
-              {!isEditing ? (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-indigo-700 font-bold text-sm hover:bg-indigo-50 transition-colors shadow-md"
-                >
-                  <span className="material-symbols-outlined text-[18px]">edit</span>
-                  Edit Profile
-                </button>
-              ) : (
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleSubmit}
-                    disabled={updateProfileMutation.isPending || !canSaveEdits}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-600 transition-colors shadow-md disabled:opacity-50"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">check</span>
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setIsEditing(false)}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white font-bold text-sm hover:bg-white/30 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
+            {/* Save Toggle */}
+            <div className="shrink-0 flex items-center h-12">
+               {isDirty() && (
+                 <button
+                   onClick={handleSubmit}
+                   disabled={updateProfileMutation.isPending}
+                   className="animate-fade-in inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-600 transition-colors shadow-md disabled:opacity-50"
+                 >
+                   <span className="material-symbols-outlined text-[18px]">check</span>
+                   {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
+                 </button>
+               )}
             </div>
           </div>
         </div>
 
         {/* Profile Form */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
+          <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
             <h2 className="font-bold text-gray-900 flex items-center gap-2">
               <span className="material-symbols-outlined text-indigo-500 text-xl">person</span>
               Personal Information
@@ -211,8 +174,7 @@ const UserProfilePage = () => {
                   type="text"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  disabled={!isEditing}
-                  className={isEditing ? inputActiveClass : inputDisabledClass}
+                  className={inputClass}
                 />
               </div>
               <div>
@@ -221,8 +183,7 @@ const UserProfilePage = () => {
                   type="text"
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  disabled={!isEditing}
-                  className={isEditing ? inputActiveClass : inputDisabledClass}
+                  className={inputClass}
                 />
               </div>
             </div>
@@ -232,10 +193,9 @@ const UserProfilePage = () => {
               <textarea
                 value={formData.bio}
                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                disabled={!isEditing}
-                rows={3}
-                className={isEditing ? inputActiveClass : inputDisabledClass}
-                placeholder={isEditing ? 'Write a short bio...' : '—'}
+                rows={4}
+                className={inputClass}
+                placeholder="Write a short bio..."
               />
             </div>
 
@@ -251,9 +211,8 @@ const UserProfilePage = () => {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  disabled={!isEditing}
-                  className={isEditing ? inputActiveClass : inputDisabledClass}
-                  placeholder={isEditing ? '+91 ...' : '—'}
+                  className={inputClass}
+                  placeholder="+91 ..."
                 />
               </div>
               <div>
@@ -267,9 +226,8 @@ const UserProfilePage = () => {
                   type="text"
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  disabled={!isEditing}
-                  className={isEditing ? inputActiveClass : inputDisabledClass}
-                  placeholder={isEditing ? 'City, Country' : '—'}
+                  className={inputClass}
+                  placeholder="City, Country"
                 />
               </div>
             </div>

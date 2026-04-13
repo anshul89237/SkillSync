@@ -100,12 +100,10 @@ const SettingsPage = () => {
 
   const handleSendOtp = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!email.trim()) {
       showToast({ message: 'Email is required', type: 'error' });
       return;
     }
-
     sendOtpMutation.mutate();
   };
 
@@ -114,7 +112,6 @@ const SettingsPage = () => {
     const next = [...otp];
     next[index] = value.slice(-1);
     setOtp(next);
-
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -150,17 +147,14 @@ const SettingsPage = () => {
 
   const handleChangePassword = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!isOtpComplete) {
       showToast({ message: 'OTP is required', type: 'error' });
       return;
     }
-
     if (!allConstraintsMet) {
       showToast({ message: 'Please satisfy all password constraints', type: 'error' });
       return;
     }
-
     changePasswordMutation.mutate();
   };
 
@@ -170,137 +164,197 @@ const SettingsPage = () => {
     return `${minutes}:${remaining < 10 ? '0' : ''}${remaining}`;
   };
 
+  const getStepStatus = (stepName: 'email' | 'otp' | 'password') => {
+    const order = ['email', 'otp', 'password'];
+    const currentIndex = order.indexOf(step);
+    const stepIndex = order.indexOf(stepName);
+    
+    if (stepIndex < currentIndex) return 'completed';
+    if (stepIndex === currentIndex) return 'active';
+    return 'upcoming';
+  };
+
   return (
     <PageLayout>
-      <div className="w-full">
-        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg p-8 text-white">
-          <h1 className="text-3xl font-bold">Change Password</h1>
-          <p className="text-indigo-100 mt-2">Secure your account with OTP verification.</p>
+      <div className="w-full max-w-3xl mx-auto space-y-6">
+        
+        {/* Banner */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-8 md:p-10 shadow-lg">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/3 -translate-x-1/3" />
+          </div>
+          <div className="relative z-10 flex items-center gap-6">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shrink-0 border-2 border-white/30 hidden md:flex">
+              <span className="material-symbols-outlined text-[32px]">lock_reset</span>
+            </div>
+            <div>
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm text-white/90 text-xs font-bold tracking-wide uppercase mb-3">
+                Security Settings
+              </span>
+              <h1 className="text-3xl font-black text-white tracking-tight">Change Password</h1>
+              <p className="text-indigo-100 mt-2 text-sm leading-relaxed max-w-lg">
+                Secure your account with OTP verification. Only users with valid email addresses can reset their passwords.
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-lg p-6 shadow-sm border border-outline-variant/20 mt-6">
-          <div className="mb-5 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-            <span className={step === 'email' ? 'text-primary' : ''}>Step 1: Email</span>
-            <span>•</span>
-            <span className={step === 'otp' ? 'text-primary' : ''}>Step 2: Verify OTP</span>
-            <span>•</span>
-            <span className={step === 'password' ? 'text-primary' : ''}>Step 3: New Password</span>
+        {/* Action Card */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 md:p-8">
+          
+          {/* Stepper */}
+          <div className="flex items-center justify-between mb-10 relative">
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-100 -z-10 rounded-full"></div>
+            
+            <div className="flex flex-col items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${getStepStatus('email') === 'completed' ? 'bg-emerald-500 text-white' : getStepStatus('email') === 'active' ? 'bg-indigo-600 text-white ring-4 ring-indigo-50' : 'bg-white text-gray-400 border border-gray-200'}`}>
+                {getStepStatus('email') === 'completed' ? <span className="material-symbols-outlined text-[16px]">check</span> : '1'}
+              </div>
+              <span className={`text-[11px] font-bold uppercase tracking-wider mt-2 ${getStepStatus('email') === 'active' ? 'text-indigo-600' : getStepStatus('email') === 'completed' ? 'text-emerald-500' : 'text-gray-400'}`}>Email</span>
+            </div>
+            
+            <div className="flex flex-col items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${getStepStatus('otp') === 'completed' ? 'bg-emerald-500 text-white' : getStepStatus('otp') === 'active' ? 'bg-indigo-600 text-white ring-4 ring-indigo-50' : 'bg-white text-gray-400 border border-gray-200'}`}>
+                {getStepStatus('otp') === 'completed' ? <span className="material-symbols-outlined text-[16px]">check</span> : '2'}
+              </div>
+              <span className={`text-[11px] font-bold uppercase tracking-wider mt-2 ${getStepStatus('otp') === 'active' ? 'text-indigo-600' : getStepStatus('otp') === 'completed' ? 'text-emerald-500' : 'text-gray-400'}`}>Verify OTP</span>
+            </div>
+            
+            <div className="flex flex-col items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm transition-colors ${getStepStatus('password') === 'completed' ? 'bg-emerald-500 text-white' : getStepStatus('password') === 'active' ? 'bg-indigo-600 text-white ring-4 ring-indigo-50' : 'bg-white text-gray-400 border border-gray-200'}`}>
+                3
+              </div>
+              <span className={`text-[11px] font-bold uppercase tracking-wider mt-2 ${getStepStatus('password') === 'active' ? 'text-indigo-600' : 'text-gray-400'}`}>New Password</span>
+            </div>
           </div>
 
-          {step === 'email' && (
-            <form onSubmit={handleSendOtp} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-on-surface mb-1">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-outline-variant/30 rounded-lg bg-surface-container-low text-on-surface focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={sendOtpMutation.isPending}
-                className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
-              >
-                {sendOtpMutation.isPending ? 'Sending OTP...' : 'Send OTP'}
-              </button>
-            </form>
-          )}
-
-          {step === 'otp' && (
-            <div className="space-y-4">
-              <div className="flex justify-between gap-2">
-                {otp.map((digit, idx) => (
+          <div className="max-w-md mx-auto">
+            {step === 'email' && (
+              <form onSubmit={handleSendOtp} className="space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Registered Email</label>
                   <input
-                    key={idx}
-                    ref={(el) => {
-                      inputRefs.current[idx] = el;
-                    }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleOtpChange(idx, e.target.value)}
-                    onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                    className="w-12 h-14 text-center text-xl font-bold border border-outline-variant/30 rounded-xl bg-surface-container-low text-on-surface focus:ring-2 focus:ring-primary"
-                  />
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={handleVerifyOtp}
-                disabled={!isOtpComplete || verifyOtpMutation.isPending}
-                className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
-              >
-                {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify OTP'}
-              </button>
-
-              <div className="text-center space-y-1">
-                <p className="text-sm font-semibold text-on-surface-variant">
-                  {timeLeft > 0 ? `${formatTime(timeLeft)} remaining` : 'OTP expired'}
-                </p>
-                <button
-                  type="button"
-                  onClick={handleResendOtp}
-                  disabled={timeLeft > 0 || sendOtpMutation.isPending}
-                  className={`text-sm font-bold ${timeLeft > 0 ? 'text-outline' : 'text-primary hover:underline'}`}
-                >
-                  {sendOtpMutation.isPending ? 'Resending...' : 'Resend OTP'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 'password' && (
-            <form onSubmit={handleChangePassword} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-on-surface mb-1">New Password</label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-4 py-2 pr-12 border border-outline-variant/30 rounded-lg bg-surface-container-low text-on-surface focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                    placeholder="Enter your registered email"
                     required
                   />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={sendOtpMutation.isPending}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md disabled:opacity-50 transition-all active:scale-95"
+                >
+                  {sendOtpMutation.isPending ? 'Sending...' : 'Send OTP verification'}
+                  {!sendOtpMutation.isPending && <span className="material-symbols-outlined text-[18px]">arrow_forward</span>}
+                </button>
+              </form>
+            )}
+
+            {step === 'otp' && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-center text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Enter 6-digit Code</label>
+                  <div className="flex justify-center gap-2 md:gap-3">
+                    {otp.map((digit, idx) => (
+                      <input
+                        key={idx}
+                        ref={(el) => {
+                          inputRefs.current[idx] = el;
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleOtpChange(idx, e.target.value)}
+                        onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                        className="w-12 h-14 md:w-14 md:h-16 text-center text-2xl font-black border border-gray-300 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleVerifyOtp}
+                  disabled={!isOtpComplete || verifyOtpMutation.isPending}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md disabled:opacity-50 transition-all active:scale-95"
+                >
+                  {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify Email Code'}
+                </button>
+
+                <div className="text-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+                    {timeLeft > 0 ? 'Time remaining' : 'OTP expired'}
+                  </p>
+                  <p className={`text-xl font-black mb-3 ${timeLeft > 0 ? 'text-gray-900' : 'text-red-500'}`}>
+                    {timeLeft > 0 ? formatTime(timeLeft) : '0:00'}
+                  </p>
                   <button
                     type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-md hover:bg-surface-container text-on-surface-variant"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    onClick={handleResendOtp}
+                    disabled={timeLeft > 0 || sendOtpMutation.isPending}
+                    className={`inline-flex items-center gap-1.5 px-4 py-2 ${timeLeft > 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'} rounded-lg text-xs font-bold uppercase transition-colors`}
                   >
-                    <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility_off' : 'visibility'}</span>
+                    <span className="material-symbols-outlined text-[16px]">refresh</span>
+                    {sendOtpMutation.isPending ? 'Sending...' : 'Resend Code'}
                   </button>
                 </div>
               </div>
+            )}
 
-              <div className="rounded-xl border border-outline-variant/20 bg-surface-container-low p-4 space-y-2">
-                {constraints.map((constraint) => (
-                  <p
-                    key={constraint.label}
-                    className={`flex items-center text-sm font-medium ${constraint.met ? 'text-emerald-600' : 'text-on-surface-variant'}`}
-                  >
-                    <span className="material-symbols-outlined text-[16px] mr-2">
-                      {constraint.met ? 'check_circle' : 'radio_button_unchecked'}
-                    </span>
-                    {constraint.label}
-                  </p>
-                ))}
-              </div>
+            {step === 'password' && (
+              <form onSubmit={handleChangePassword} className="space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">New Password Requirements</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all"
+                      placeholder="Enter new password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility_off' : 'visibility'}</span>
+                    </button>
+                  </div>
+                </div>
 
-              <button
-                type="submit"
-                disabled={changePasswordMutation.isPending || !allConstraintsMet}
-                className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
-              >
-                {changePasswordMutation.isPending ? 'Updating...' : 'Save New Password'}
-              </button>
-            </form>
-          )}
+                <div className="grid grid-cols-1 gap-2.5 p-5 bg-gray-50 rounded-xl border border-gray-200">
+                  {constraints.map((constraint) => (
+                    <div
+                      key={constraint.label}
+                      className={`flex items-center text-xs font-bold tracking-wide transition-colors duration-300 ${constraint.met ? 'text-emerald-500' : 'text-gray-400'}`}
+                    >
+                      <span className="material-symbols-outlined text-[16px] mr-2">
+                        {constraint.met ? 'check_circle' : 'circle'}
+                      </span>
+                      {constraint.label}
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={changePasswordMutation.isPending || !allConstraintsMet}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-md disabled:opacity-50 transition-all active:scale-95"
+                >
+                  {changePasswordMutation.isPending ? 'Updating...' : 'Save New Password'}
+                  {!changePasswordMutation.isPending && <span className="material-symbols-outlined text-[18px]">lock_reset</span>}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </PageLayout>
