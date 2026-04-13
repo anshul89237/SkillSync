@@ -247,23 +247,25 @@ const GroupDetailPage = () => {
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest border border-outline-variant/10 rounded-xl p-1.5 inline-flex gap-1 shadow-sm overflow-x-auto max-w-full scrollbar-hide">
-          <div className="flex gap-1">
-            {['discussion', 'members'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab as typeof activeTab)}
-                className={`whitespace-nowrap px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 capitalize ${
-                  activeTab === tab
-                    ? 'gradient-btn text-white shadow-md scale-[1.02]'
-                    : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
+        {(currentRole === 'ROLE_ADMIN' || activeTab !== 'discussion') && (
+          <div className="bg-surface-container-lowest border border-outline-variant/10 rounded-xl p-1.5 inline-flex gap-1 shadow-sm overflow-x-auto max-w-full scrollbar-hide">
+            <div className="flex gap-1">
+              {['discussion', ...(currentRole === 'ROLE_ADMIN' ? ['members'] : [])].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab as typeof activeTab)}
+                  className={`whitespace-nowrap px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 capitalize ${
+                    activeTab === tab
+                      ? 'gradient-btn text-white shadow-md scale-[1.02]'
+                      : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {activeTab === 'discussion' && (
           <div className="space-y-6">
