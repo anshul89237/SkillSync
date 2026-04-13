@@ -69,7 +69,7 @@ const ReviewModal = ({ isOpen, onClose, mentorId, sessionId, onSuccess }: Review
               <span className={`material-symbols-outlined text-4xl transition-colors ${
                 star <= (hoverRating || rating) 
                   ? 'text-amber-400 font-solid filled' 
-                  : 'text-outline-variant/30 font-light'
+                  : 'text-slate-300 dark:text-slate-600 font-light'
               }`} style={{ fontVariationSettings: star <= (hoverRating || rating) ? "'FILL' 1" : "'FILL' 0" }}>
                 star
               </span>
