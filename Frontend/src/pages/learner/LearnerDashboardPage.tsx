@@ -218,7 +218,11 @@ const LearnerDashboardPage = () => {
         ) : (
           <div className="space-y-3">
             {groups.map((g: any, i: number) => (
-              <div key={i} className="flex justify-between items-center text-sm font-semibold p-2 rounded-lg hover:bg-surface-container-low transition-colors">
+              <div 
+                key={i} 
+                onClick={() => navigate(`/groups/${g.id}`)}
+                className="flex justify-between items-center text-sm font-semibold p-2 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer"
+              >
                 <span>{g.name}</span>
                 <span className="text-on-surface-variant text-xs">{g.memberCount || 1} members</span>
               </div>
