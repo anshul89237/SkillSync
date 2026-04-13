@@ -297,9 +297,7 @@ const MentorDashboardPage = () => {
                 </div>
 
                 <div className="flex items-center gap-2 self-end md:self-auto">
-                  <button className="bg-surface-container hover:bg-surface-container-high text-on-surface px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-colors border border-outline-variant/10 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">videocam</span> Join Call
-                  </button>
+
                   <button 
                     onClick={() => completeMutation.mutate(session.id)}
                     disabled={completeMutation.isPending}

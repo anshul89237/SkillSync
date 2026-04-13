@@ -237,9 +237,7 @@ const MySessionsPage = () => {
 
                     {!isMentor && session.status === 'ACCEPTED' && (
                       <>
-                        <button className="bg-surface-container-high hover:bg-surface-container-highest text-on-surface px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors border border-outline-variant/10 shrink-0">
-                          Join Call
-                        </button>
+
                         <button 
                           onClick={() => void handleLearnerCancel(session.id)}
                           disabled={cancelMutation.isPending}
