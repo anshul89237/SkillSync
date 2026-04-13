@@ -1,12 +1,15 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../store';
 import Navbar from '../../components/layout/Navbar';
 import api from '../../services/axios';
 
 const MentorProfilePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const currentUser = useSelector((state: RootState) => state.auth.user);
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -118,6 +121,8 @@ const MentorProfilePage = () => {
   const mentorSessions = Number(mentor.totalSessions ?? 0);
   const mentorAverageRating = Number(mentor.avgRating ?? mentor.rating ?? 0);
   const isNewMentor = mentorSessions === 0;
+  
+  const isOwnProfile = Boolean(currentUser && mentor && Number(currentUser.id) === Number(mentor.userId));
 
   const formatTimeOnlyIST = (value: string) => {
     const dateValue = new Date(value);
@@ -166,17 +171,19 @@ const MentorProfilePage = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 mt-8">
-                <button 
-                  onClick={() => document.getElementById('booking-card')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="gradient-btn text-white px-8 py-3 rounded-xl font-bold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none"
-                >
-                  Book Session <span className="material-symbols-outlined text-[20px]">calendar_month</span>
-                </button>
-                <button className="bg-surface-container hover:bg-surface-container-high text-on-surface px-8 py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 border border-transparent hover:border-outline-variant/20 flex-1 sm:flex-none">
-                  Message <span className="material-symbols-outlined text-[20px]">send</span>
-                </button>
-              </div>
+              {!isOwnProfile && (
+                <div className="flex flex-col sm:flex-row gap-3 mt-8">
+                  <button 
+                    onClick={() => document.getElementById('booking-card')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="gradient-btn text-white px-8 py-3 rounded-xl font-bold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none"
+                  >
+                    Book Session <span className="material-symbols-outlined text-[20px]">calendar_month</span>
+                  </button>
+                  <button className="bg-surface-container hover:bg-surface-container-high text-on-surface px-8 py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 border border-transparent hover:border-outline-variant/20 flex-1 sm:flex-none">
+                    Message <span className="material-symbols-outlined text-[20px]">send</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* ABOUT */}
@@ -356,10 +363,10 @@ const MentorProfilePage = () => {
 
                 <button 
                   onClick={handleBook}
-                  disabled={!selectedSlot} 
+                  disabled={!selectedSlot || isOwnProfile} 
                   className="w-full h-12 gradient-btn text-white font-extrabold rounded-xl shadow-md hover:shadow-lg disabled:opacity-50 disabled:scale-100 active:scale-[0.98] transition-all duration-300 disabled:cursor-not-allowed"
                 >
-                  {selectedSlot ? `Book for ${formatTimeOnlyIST(selectedSlot.startTime)}` : 'Select a Time Slot'}
+                  {isOwnProfile ? 'This is your own profile' : selectedSlot ? `Book for ${formatTimeOnlyIST(selectedSlot.startTime)}` : 'Select a Time Slot'}
                 </button>
               </div>
             </div>
