@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../store';
 import mentorService from '../../services/mentorService';
 import PageLayout from '../../components/layout/PageLayout';
 import { useToast } from '../../components/ui/Toast';
@@ -20,6 +22,7 @@ const MentorDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { showToast } = useToast();
+  const currentUser = useSelector((state: RootState) => state.auth.user);
 
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
   const [selectedDurationMinutes, setSelectedDurationMinutes] = useState<number>(60);
@@ -297,6 +300,8 @@ const MentorDetailPage = () => {
     ? hasDuplicateBookingForSelection(mentorUserIdForSelection, selectedDurationMinutes)
     : false;
 
+  const isOwnProfile = Boolean(currentUser && Number(currentUser.id) === mentorUserIdForSelection);
+
   const reviews = reviewsData?.content || [];
 
   const getInitials = (first?: string, last?: string) => {
@@ -539,7 +544,7 @@ const MentorDetailPage = () => {
 
             <button
               onClick={handlePayNow}
-              disabled={isProcessing || hasDuplicateLearnerBooking}
+              disabled={isProcessing || hasDuplicateLearnerBooking || isOwnProfile}
               className="w-full h-14 gradient-btn text-white font-extrabold text-lg rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-70 active:scale-[0.98] transition-all flex items-center justify-center gap-3 relative group"
             >
               {isProcessing && <span className="absolute inset-0 bg-white/20 animate-pulse"></span>}
@@ -553,7 +558,7 @@ const MentorDetailPage = () => {
                   </span>
                 </>
               ) : (
-                hasDuplicateLearnerBooking ? 'Session already booked for this slot' : (
+                isOwnProfile ? 'This is your own profile' : hasDuplicateLearnerBooking ? 'Session already booked for this slot' : (
                   <>
                     <span className="material-symbols-outlined text-[22px]">lock</span>
                     Pay Now - ₹{estimatedCost.toFixed(0)}
