@@ -10,7 +10,7 @@ import { store } from './store/index.ts'
 import { queryClient } from './utils/queryClient.ts'
 import { ThemeProvider } from './context/ThemeContext.tsx'
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "383591019179-ecmji7fgvtr18dc3ofn9qtm7tekgjght.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

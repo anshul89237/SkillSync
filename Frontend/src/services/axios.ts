@@ -11,13 +11,8 @@ if (isProd && configuredUrl && configuredUrl.includes('3.217.114.102')) {
     configuredUrl = 'https://3.217.114.102.nip.io';
 }
 
-// CRITICAL: If configuredUrl points to the frontend domain (Vercel),
-// redirect to the actual API domain (EC2). This handles
-// misconfigured VITE_API_URL in Vercel deployment settings.
-if (isProd && configuredUrl && new URL(configuredUrl).hostname === 'skillsync-frontend-xi.vercel.app') {
-    console.warn('[CORS FIX] Detected misconfigured API URL pointing to frontend domain. Redirecting to API Gateway...');
-    configuredUrl = 'https://3.217.114.102.nip.io';
-}
+
+
 
 export const API_BASE_URL = configuredUrl || (isProd ? 'https://3.217.114.102.nip.io' : 'http://localhost:8080');
 

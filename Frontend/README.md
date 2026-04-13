@@ -1,93 +1,67 @@
-# React + TypeScript + Vite
+# SkillSync Frontend
 
-## SkillSync Production Notes
+A React + TypeScript + Tailwind CSS frontend for the SkillSync mentorship platform.
 
-This frontend is deployed on Vercel (`https://skillsync.mraks.dev`), while backend APIs are served directly from the gateway API domain (`https://api.skillsync.mraks.dev`).
+## Tech Stack
 
-- API calls should target `https://api.skillsync.mraks.dev` (gateway ingress on EC2).
-- Vercel should not proxy backend APIs via rewrites.
-- Swagger is exposed at `https://api.skillsync.mraks.dev/swagger-ui.html`.
+- React 19 + TypeScript
+- Vite 8
+- Tailwind CSS 4
+- Redux Toolkit + React Query
+- React Router DOM 7
+- Google OAuth (@react-oauth/google)
 
-Recommended environment variables:
+## Getting Started
 
 ```bash
-VITE_API_URL=https://api.skillsync.mraks.dev
-VITE_BACKEND_BASE_URL=https://api.skillsync.mraks.dev
-VITE_MONITORING_BASE_URL=https://api.skillsync.mraks.dev
-VITE_SWAGGER_URL=https://api.skillsync.mraks.dev/swagger-ui/index.html
-VITE_EUREKA_URL=https://api.skillsync.mraks.dev/eureka-ui/
-VITE_SONAR_URL=https://sonarcloud.io/organizations/skillsync-github/projects
-VITE_GOOGLE_CLIENT_ID=383591019179-ecmji7fgvtr18dc3ofn9qtm7tekgjght.apps.googleusercontent.com
+npm install
+npm run dev
 ```
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Environment Variables
 
-Currently, two official plugins are available:
+Create a `.env` file in the Frontend directory:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_API_URL=http://localhost:8080
+VITE_GOOGLE_CLIENT_ID=your-google-client-id
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Build
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+npm run build
+npm run preview
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Project Structure
+
+```
+src/
+├── assets/          # Static assets (logos, images)
+├── components/      # Reusable UI and layout components
+│   ├── layout/      # Navbar, Sidebar, PageLayout, AuthLayout
+│   ├── modals/      # Modal components
+│   └── ui/          # Toast, ActionConfirm, ThemeToggleButton
+├── context/         # React context providers (Theme)
+├── hooks/           # Custom hooks
+├── pages/           # Route-level page components
+│   ├── admin/       # Admin dashboard pages
+│   ├── auth/        # Login, Register, OTP, Password flows
+│   ├── error/       # Error pages
+│   ├── groups/      # Study groups
+│   ├── learner/     # Learner dashboard
+│   ├── mentor/      # Mentor dashboard
+│   ├── mentors/     # Discover & detail pages
+│   ├── notifications/
+│   ├── payment/     # Checkout
+│   ├── profile/     # User profile
+│   ├── sessions/    # Session management
+│   ├── settings/    # User settings
+│   └── support/     # Help center
+├── routes/          # App routing config
+├── services/        # API client (axios)
+├── store/           # Redux store & slices
+├── types/           # TypeScript type definitions
+└── utils/           # Utility functions
 ```

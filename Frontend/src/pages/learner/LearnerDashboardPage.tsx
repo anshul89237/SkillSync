@@ -119,7 +119,7 @@ const LearnerDashboardPage = () => {
   };
 
   const getAvatarColor = (name?: string) => {
-    const colors = ['bg-blue-500', 'bg-emerald-500', 'bg-violet-500', 'bg-amber-500', 'bg-rose-500'];
+    const colors = ['bg-indigo-500', 'bg-violet-500', 'bg-cyan-600', 'bg-purple-500', 'bg-sky-500'];
     const idx = name ? name.charCodeAt(0) % colors.length : 0;
     return colors[idx];
   };

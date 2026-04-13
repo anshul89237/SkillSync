@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -7,15 +7,15 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { setCredentials } from '../../store/slices/authSlice';
 import api from '../../services/axios';
 import { useToast } from '../../components/ui/Toast';
-import logo from '../../assets/skillsync-logo.png';
+import logo from '../../assets/skillsync-logo-new.svg';
 
 const LoginPage = () => {
-  // ... existing form hooks ...
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('reason') === 'session_expired') {
@@ -37,7 +37,7 @@ const LoginPage = () => {
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
       }));
-      
+
       const role = data.user.role;
       if (role === 'ROLE_ADMIN') navigate('/admin');
       else if (role === 'ROLE_MENTOR') navigate('/mentor');
@@ -82,10 +82,6 @@ const LoginPage = () => {
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        // Since we're using the Implicit Flow with useGoogleLogin, 
-        // we can either get user info from an ID token (if available) 
-        // or by calling Google's userInfo endpoint using the access_token.
-        
         const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         }).then(res => res.json());
@@ -99,7 +95,7 @@ const LoginPage = () => {
         };
 
         oauthMutation.mutate(profile);
-      } catch (err) {
+      } catch {
         showToast({ message: 'Failed to fetch Google profile.', type: 'error' });
       }
     },
@@ -111,26 +107,26 @@ const LoginPage = () => {
   return (
     <div className="flex flex-col items-center">
       <div className="flex items-center gap-3 mb-4 group transition-all">
-        <img 
-          src={logo} 
-          alt="SkillSync Logo" 
-          className="w-12 h-12 object-contain hover:scale-110 transition duration-500" 
-          onError={(e: any) => { e.target.src = 'https://via.placeholder.com/48?text=S'; }} 
+        <img
+          src={logo}
+          alt="SkillSync Logo"
+          className="w-12 h-12 object-contain hover:scale-110 transition duration-500"
+          onError={(e: any) => { e.target.src = 'https://via.placeholder.com/48?text=S'; }}
         />
         <h1 className="text-4xl font-black tracking-tighter text-on-surface">SkillSync</h1>
       </div>
-      <p className="text-sm text-on-surface-variant font-medium mb-8 text-center px-4 max-w-xs">Connecting ambition with expertise, one sync at a time.</p>
+      <p className="text-sm text-on-surface-variant font-medium mb-8 text-center px-4 max-w-xs">Your gateway to personalized mentorship and growth.</p>
 
       <div className="w-full bg-surface-container-lowest p-8 md:p-10 rounded-xl shadow-sm border border-outline-variant/15 transition-all">
-        <h2 className="text-xl font-bold text-on-surface mb-6">Welcome back</h2>
-        
+        <h2 className="text-xl font-bold text-on-surface mb-6">Sign in to continue</h2>
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="text-sm font-semibold text-on-surface-variant block mb-1">Email</label>
-            <input 
-              type="email" 
-              {...register('email', { required: 'Email is required' })} 
-              className="w-full h-12 px-4 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all duration-200" 
+            <input
+              type="email"
+              {...register('email', { required: 'Email is required' })}
+              className="w-full h-12 px-4 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all duration-200"
               placeholder="name@example.com"
             />
             {errors.email && <p className="text-xs text-error mt-1">{errors.email.message as string}</p>}
@@ -141,27 +137,36 @@ const LoginPage = () => {
               <label className="text-sm font-semibold text-on-surface-variant">Password</label>
               <Link to="/forgot-password" className="text-sm font-bold text-primary hover:underline">Forgot password?</Link>
             </div>
-            <input 
-              type="password" 
-              {...register('password', { required: 'Password is required' })} 
-              className="w-full h-12 px-4 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all duration-200" 
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                {...register('password', { required: 'Password is required' })}
+                className="w-full h-12 px-4 pr-20 bg-surface-container-low border border-outline-variant/30 rounded-xl focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all duration-200"
+                placeholder="********"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold uppercase tracking-wide text-on-surface-variant hover:text-on-surface"
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
             {errors.password && <p className="text-xs text-error mt-1">{errors.password.message as string}</p>}
           </div>
 
           {loginMutation.isError && <p className="text-xs text-error mt-2">Error connecting to server. Please try again.</p>}
 
-          <button 
-            type="submit" 
-            disabled={loginMutation.isPending} 
+          <button
+            type="submit"
+            disabled={loginMutation.isPending}
             className="mt-6 flex items-center justify-center w-full h-12 gradient-btn text-white font-bold rounded-xl shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-500 disabled:opacity-70 disabled:scale-100"
           >
             {loginMutation.isPending ? (
               <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
             ) : (
               <>
-                Sign In 
+                Sign In
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                 </svg>
@@ -176,8 +181,8 @@ const LoginPage = () => {
           <div className="flex-1 h-px bg-outline-variant/30"></div>
         </div>
 
-        <button 
-          onClick={() => handleGoogleLogin()} 
+        <button
+          onClick={() => handleGoogleLogin()}
           disabled={oauthMutation.isPending}
           className="mt-6 flex items-center justify-center w-full h-12 bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-bold rounded-xl shadow-sm border border-outline-variant/30 transition-all duration-200"
         >

@@ -8,12 +8,9 @@ const AuthLayout = () => {
         <ThemeToggleButton showLabel={false} />
       </div>
 
-      {/* Top-left blob */}
       <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] -z-10 animate-pulse pointer-events-none" />
-      
-      {/* Bottom-right blob */}
       <div className="fixed bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-secondary-container/10 rounded-full blur-[100px] -z-10 animate-pulse pointer-events-none" />
-      
+
       <div className="w-full max-w-[440px]">
         <Outlet />
       </div>
