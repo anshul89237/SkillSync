@@ -21,7 +21,6 @@ const GroupDetailPage = () => {
   const groupId = Number(id);
 
   const [activeTab, setActiveTab] = useState<'discussion' | 'members'>('discussion');
-  const [newDiscussionTitle, setNewDiscussionTitle] = useState('');
   const [newDiscussionContent, setNewDiscussionContent] = useState('');
   const [showDiscussionForm, setShowDiscussionForm] = useState(false);
 
@@ -73,16 +72,15 @@ const GroupDetailPage = () => {
   });
 
   const postDiscussionMutation = useMutation({
-    mutationFn: () => groupService.postDiscussion(groupId, newDiscussionTitle, newDiscussionContent),
+    mutationFn: ({ title, content }: { title: string; content: string }) => 
+      groupService.postDiscussion(groupId, title, content),
     onSuccess: () => {
-      showToast({ message: 'Message posted successfully', type: 'success' });
-      setNewDiscussionTitle('');
+      showToast({ message: 'Message sent', type: 'success' });
       setNewDiscussionContent('');
-      setShowDiscussionForm(false);
       queryClient.invalidateQueries({ queryKey: ['group', id, 'discussions'] });
     },
     onError: () => {
-      showToast({ message: 'Failed to post message', type: 'error' });
+      showToast({ message: 'Failed to send message', type: 'error' });
     },
   });
 
@@ -120,11 +118,13 @@ const GroupDetailPage = () => {
 
   const handlePostDiscussion = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!newDiscussionTitle.trim() || !newDiscussionContent.trim()) {
-      showToast({ message: 'Please provide both title and message', type: 'error' });
+    if (!newDiscussionContent.trim()) {
       return;
     }
-    postDiscussionMutation.mutate();
+    
+    // Auto-generate title for the backend constraint to keep UI clean
+    const title = newDiscussionContent.substring(0, 50).trim() || 'Chat Message';
+    postDiscussionMutation.mutate({ title, content: newDiscussionContent });
   };
 
   const handleLeaveGroup = async () => {
@@ -282,59 +282,33 @@ const GroupDetailPage = () => {
               </div>
             ) : (
               <>
-                <button
-                  onClick={() => setShowDiscussionForm((value) => !value)}
-                  className="h-11 px-8 gradient-btn text-white shadow-md hover:shadow-lg rounded-xl font-bold transition-all hover:-translate-y-0.5"
-                >
-                  {showDiscussionForm ? 'Close Composer' : '+ New Message'}
-                </button>
-
-                {showDiscussionForm && (
-                  <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/10">
-                    <form onSubmit={handlePostDiscussion} className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-bold text-on-surface-variant mb-1">Title</label>
-                        <input
-                          type="text"
-                          value={newDiscussionTitle}
-                          onChange={(event) => setNewDiscussionTitle(event.target.value)}
-                          className="w-full h-10 bg-surface-container px-3 rounded-lg text-sm font-semibold text-on-surface outline-none focus:ring-1 focus:ring-primary border border-transparent"
-                          placeholder="Message title"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-bold text-on-surface-variant mb-1">Message</label>
-                        <textarea
-                          value={newDiscussionContent}
-                          onChange={(event) => setNewDiscussionContent(event.target.value)}
-                          rows={4}
-                          className="w-full bg-surface-container px-3 py-2 rounded-lg text-sm font-semibold text-on-surface outline-none focus:ring-1 focus:ring-primary border border-transparent"
-                          placeholder="Write your message"
-                          required
-                        />
-                      </div>
-
-                      <div className="flex gap-2">
-                        <button
-                          type="submit"
-                          disabled={postDiscussionMutation.isPending}
-                          className="h-11 px-8 gradient-btn text-white shadow-md hover:shadow-lg rounded-xl font-bold transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
-                        >
-                          {postDiscussionMutation.isPending ? 'Posting...' : 'Post Message'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowDiscussionForm(false)}
-                          className="h-10 px-6 rounded-lg text-sm font-bold bg-surface-container hover:bg-surface-container-high text-on-surface"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                )}
+                <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/10">
+                  <form onSubmit={handlePostDiscussion} className="flex items-end gap-3">
+                    <div className="flex-1">
+                      <textarea
+                        value={newDiscussionContent}
+                        onChange={(event) => setNewDiscussionContent(event.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handlePostDiscussion(e as any);
+                          }
+                        }}
+                        rows={1}
+                        className="w-full bg-surface-container px-4 py-3 rounded-xl text-sm font-semibold text-on-surface outline-none focus:ring-1 focus:ring-primary border border-transparent resize-none max-h-32 min-h-[44px]"
+                        placeholder="Type a message... (Press Enter to send)"
+                        required
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={postDiscussionMutation.isPending || !newDiscussionContent.trim()}
+                      className="h-11 px-6 gradient-btn text-white shadow-md hover:shadow-lg rounded-xl font-bold transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:scale-100 disabled:shadow-none whitespace-nowrap"
+                    >
+                      {postDiscussionMutation.isPending ? '...' : 'Send'}
+                    </button>
+                  </form>
+                </div>
 
                 {discussionsLoading ? (
                   <div className="space-y-3">
@@ -354,11 +328,10 @@ const GroupDetailPage = () => {
                         <div key={discussion.id} className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/10">
                           <div className="flex justify-between items-start gap-4 mb-3">
                             <div>
-                              <h3 className="font-bold text-on-surface">{discussion.title}</h3>
-                              <p className="text-sm text-on-surface-variant">
-                                by {discussion.authorName} ({discussion.authorRole.replace('ROLE_', '')})
-                                {' • '}
-                                {new Date(discussion.createdAt).toLocaleTimeString()}
+                              <p className="text-xs font-bold text-primary mb-1">
+                                {discussion.authorName} <span className="text-on-surface-variant font-medium tracking-wide">({discussion.authorRole.replace('ROLE_', '')})</span>
+                                <span className="text-on-surface-variant font-medium px-2">•</span>
+                                <span className="text-on-surface-variant font-medium">{new Date(discussion.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                               </p>
                             </div>
                             {canDelete && (
