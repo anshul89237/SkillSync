@@ -13,7 +13,6 @@ import SetupPasswordPage from '../pages/auth/SetupPasswordPage';
 import UnauthorizedPage from '../pages/auth/UnauthorizedPage';
 import ServerErrorPage from '../pages/error/ServerErrorPage';
 
-import LandingPage from '../pages/LandingPage.tsx';
 import PptLandingPage from '../pages/PptLandingPage.tsx';
 
 import LearnerDashboardPage from '../pages/learner/LearnerDashboardPage';
@@ -43,7 +42,7 @@ import DashboardRedirect from './DashboardRedirect';
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/ppt" element={<PptLandingPage />} />
       <Route path="/feppt" element={<Navigate to="/skillsync_study_guide.html" replace />} />
 
