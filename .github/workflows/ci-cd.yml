@@ -262,8 +262,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=anshul89237_SkillSync
-            -Dsonar.organization=anshul89237
+            -Dsonar.projectKey=skillsync
+            -Dsonar.organization=SkillSync
             -Dsonar.sources=Backend/auth-service/src/main,Backend/user-service/src/main,Backend/skill-service/src/main,Backend/session-service/src/main,Backend/notification-service/src/main,Backend/payment-service/src/main,Backend/api-gateway/src/main,Frontend/src
             -Dsonar.tests=Backend/auth-service/src/test,Backend/user-service/src/test,Backend/skill-service/src/test,Backend/session-service/src/test,Backend/notification-service/src/test,Backend/payment-service/src/test,Backend/api-gateway/src/test
             -Dsonar.java.binaries=Backend/auth-service/target/classes,Backend/user-service/target/classes,Backend/skill-service/target/classes,Backend/session-service/target/classes,Backend/notification-service/target/classes,Backend/payment-service/target/classes,Backend/api-gateway/target/classes
