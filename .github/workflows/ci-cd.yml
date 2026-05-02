@@ -1,11 +1,3 @@
-# ============================================================
-#  SkillSync CI/CD Pipeline
-#  - Build shared library (skillsync-cache-common)
-#  - Build & test all microservices in parallel (matrix)
-#  - Code quality analysis (SonarCloud) — conditional
-#  - Docker build + push to Docker Hub (latest + SHA tags)
-#  - Deploy to AWS EC2 via SSH
-# ============================================================
 name: SkillSync CI/CD
 
 on:
@@ -221,7 +213,7 @@ jobs:
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s' "$EC2_SSH_KEY" > ~/.ssh/id_rsa
+          printf '%b' "$EC2_SSH_KEY" | sed 's/\r$//' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
