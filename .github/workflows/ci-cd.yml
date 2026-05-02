@@ -213,18 +213,7 @@ jobs:
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          python3 - <<'PY'
-import os
-key = os.environ['EC2_SSH_KEY']
-key = key.strip()
-if key.startswith(('"', "'")) and key.endswith(('"', "'")):
-    key = key[1:-1]
-key = key.replace('\\r', '')
-key = key.replace('\\n', '\n')
-key = key.rstrip() + '\n'
-with open(os.path.expanduser('~/.ssh/id_rsa'), 'w', newline='') as f:
-    f.write(key)
-PY
+          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keygen -y -f ~/.ssh/id_rsa > /dev/null
 
