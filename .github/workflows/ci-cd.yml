@@ -219,7 +219,7 @@ key = os.environ['EC2_SSH_KEY']
 key = key.strip()
 if key.startswith(('"', "'")) and key.endswith(('"', "'")):
     key = key[1:-1]
-if '\\n' in key and not key.startswith('-----BEGIN'):
+if '\\n' in key:
     key = key.replace('\\r', '').replace('\\n', '\n')
 key = key.rstrip() + '\n'
 with open(os.path.expanduser('~/.ssh/id_rsa'), 'w', newline='') as f:
