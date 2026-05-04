@@ -111,7 +111,7 @@ services:
         limits:
           memory: 384M
     ports:
-      - "127.0.0.1:9411:9411"   # Zipkin UI (http://localhost:9411)
+      - "0.0.0.0:9411:9411"   # Zipkin UI (http://localhost:9411)
     environment:
       STORAGE_TYPE: mem
     healthcheck:
@@ -136,7 +136,7 @@ services:
         limits:
           memory: 384M
     ports:
-      - "127.0.0.1:9090:9090"   # Prometheus UI (http://localhost:9090)
+      - "0.0.0.0:9090:9090"   # Prometheus UI (http://localhost:9090)
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
@@ -168,7 +168,7 @@ services:
         limits:
           memory: 256M
     ports:
-      - "127.0.0.1:3000:3000"   # Grafana UI (http://localhost:3000)
+      - "0.0.0.0:3000:3000"   # Grafana UI (http://localhost:3000)
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-changeme}
@@ -235,7 +235,7 @@ services:
     environment:
       JAVA_OPTS: "-Xms128m -Xmx384m"
     ports:
-      - "127.0.0.1:8761:8761"   # Exposed for debug dashboard — remove in true production
+      - "0.0.0.0:8761:8761"   # Exposed for debug dashboard. Open EC2 SG port 8761 for access.
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1"]
       interval: 15s
@@ -289,7 +289,7 @@ services:
     environment:
       JAVA_OPTS: "-Xms128m -Xmx384m"
     ports:
-      - "127.0.0.1:8080:8080"   # Bound to localhost to force traffic through NGINX host proxy
+      - "0.0.0.0:8080:8080"   # Bound to localhost to force traffic through NGINX host proxy
     depends_on:
       eureka-server:
         condition: service_healthy
